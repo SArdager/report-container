@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,8 @@ public class AdminController {
 
     @Autowired
     private CompanyService companyService;
+    @Autowired
+    private BranchService branchService;
     @Autowired
     private DepartmentService departmentService;
     @Autowired
@@ -44,53 +47,69 @@ public class AdminController {
 
     @RequestMapping("/admin")
     public String viewAdminStarter(Model model){
-        return "/admin";
+        return "admin";
     }
     @RequestMapping("/admin/reset-password")
     public String viewResetPassword(){
-        return "/admin/reset-password";
+        return "admin/reset-password";
+    }
+    @RequestMapping("/admin/edit-time-standard")
+    public  String viewEditQuality(Model model){
+        User user = getUserFromAuthentication();
+        int departmentId = user.getDepartmentId();
+        Department department = departmentService.findDepartmentById(departmentId);
+        List<Branch> branches = branchService.findAllBySorted();
+        model.addAttribute("user", user);
+        model.addAttribute("department", department);
+        model.addAttribute("branches", branches);
+        return "admin/edit-time-standard";
+    }
+
+    @RequestMapping("/admin/alarm-groups")
+    public String editAlarmGroups(Model model){
+        List<AlarmGroup> alarmGroups = alarmGroupService.findAll();
+        List<Branch> branches = branchService.findAllBySorted();
+        model.addAttribute("branches", branches);
+        model.addAttribute("alarmGroups", alarmGroups);
+        return "admin/alarm-groups";
     }
 
     @RequestMapping("/admin/edit-user")
     public String viewEditUser(){
-        return "/admin/edit-user";
+        return "admin/edit-user";
     }
 
     @RequestMapping("/admin/info-users")
     public String findUserPage(){
-        return "/admin/info-users";
+        return "admin/info-users";
     }
-
-    @GetMapping("/admin/add-user")
-    public String registration(Model model){
+    private User getUserFromAuthentication() {
+        String username = "";
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
         Object principal = authentication.getPrincipal();
-        String username = "";
         if (principal instanceof UserDetails) {
             username = ((UserDetails) principal).getUsername();
         } else {
             username = principal.toString();
         }
-        User user = userService.findByUsername(username);
+        return userService.findByUsername(username);
+    }
+
+    @RequestMapping("/admin/add-user")
+    public String registration(Model model){
+        User user = getUserFromAuthentication();
         List<Company> companies = companyService.findAll();
         model.addAttribute("user", user);
-        model.addAttribute("userForm", new User());
         model.addAttribute("companies", companies);
-        return "/admin/add-user";
+        return "admin/add-user";
     }
 
     @GetMapping("/admin/edit-rights")
     public String rightsEditor(Model model){
         List<Company> companies = companyService.findAll();
         model.addAttribute("companies", companies);
-        return "/admin/edit-rights";
-    }
-    @RequestMapping("/admin/alarm-groups")
-    public String editAlarmGroups(Model model){
-        List<AlarmGroup> alarmGroups = alarmGroupService.findAll();
-        model.addAttribute("alarmGroups", alarmGroups);
-        return "/admin/alarm-groups";
+        return "admin/edit-rights";
     }
 
     @PostMapping("/admin/add-user/save-user")
@@ -99,20 +118,17 @@ public class AdminController {
         req.setCharacterEncoding("UTF-8");
         User userForm = new User();
         List<UserRights> userRightsList = new ArrayList<>();
-        Long curatorId = Long.parseLong(req.getParameter("curatorId"));
         userForm.setUsername(req.getParameter("username"));
         userForm.setUserSurname(req.getParameter("userSurname"));
         userForm.setUserFirstname(req.getParameter("userFirstname"));
         userForm.setPosition(req.getParameter("position"));
-        userForm.setEmail(req.getParameter("email"));
+        String email = req.getParameter("email");
+        userForm.setEmail(email);
         userForm.setRole(req.getParameter("role"));
         userForm.setDepartmentId(Integer.parseInt(req.getParameter("departmentId")));
-        if(curatorId!=null){
-            userForm.setCurator(userService.findUserById(curatorId));
-        } else {
-            userForm.setCurator(null);
-        }
-        userForm.setPassword(req.getParameter("password"));
+        TemporaryPasswordGenerator generator = new TemporaryPasswordGenerator();
+        String password = generator.generateTemporaryPassword();
+        userForm.setPassword(password);
         userForm.setEnabled(true);
         userForm.setTemporary(true);
         userForm.setUserRightsList(userRightsList);
@@ -123,10 +139,20 @@ public class AdminController {
             User user = userService.findByUsername(userForm.getUsername());
             userRights.setDepartment(department);
             userRights.setRights(req.getParameter("rights"));
+            userRights.setUser(user);
             user.addUserRights(userRights);
             userRightsService.addNewUserGroup(userRights);
-            userService.saveUser(user);
-            message = "Пользователь " + user.getUserSurname() + " " + user.getUserFirstname() + " добавлен.";
+            if(userService.saveUser(user)){
+                if(emailService.sendNewUserMessage(user.getUserFirstname() + " " + user.getUserSurname(),
+                        user.getUsername(), email, password)){
+                    message = "Пользователь " + user.getUserSurname() + " " + user.getUserFirstname() + " добавлен." +
+                            "\nСообщение о регистрации с разовым паролем выслано на адрес корпоративной электронной почты пользователя.";
+                } else {
+                    message = "Пользователь зарегистрирован в системе, но сообщение о регистрации с разовым паролем НЕ БЫЛО ВЫСЛАНО на адрес корпоративной электронной почты пользователя из-за сбоя работы почтового сервера.";
+                }
+            } else{
+                message = "Сбой при регистрации пользователя. Повторите.";
+            }
         } else  {
             message = "Пользователь с логином " + userForm.getUsername() + " уже имеется.";
         }
@@ -151,13 +177,31 @@ public class AdminController {
                 user.setUserFirstname(userFromList.getUserFirstname());
                 user.setUserSurname(userFromList.getUserSurname());
                 user.setDepartmentId(userFromList.getDepartmentId());
+                user.setPosition(userFromList.getPosition());
                 user.setRole(userFromList.getRole());
                 users.add(user);
             }
         }
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(User.class, new UserSerializer());
         resp.setContentType("json");
         resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().print(this.gson.toJson(users));
+        resp.getWriter().print(builder.create().toJson(users));
+        resp.getWriter().flush();
+        resp.getWriter().close();
+    }
+
+    @PostMapping("/admin/search-department-users")
+    public void searchDepartmentUsers(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        req.setCharacterEncoding("UTF-8");
+        int departmentId = Integer.parseInt(req.getParameter("departmentId"));
+        List<User> users = userService.getAllByDepartmentId(departmentId);
+        System.out.println("AdminController, users: " + users.size());
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(User.class, new UserSerializer());
+        resp.setContentType("json");
+        resp.setCharacterEncoding("UTF-8");
+        resp.getWriter().print(builder.create().toJson(users));
         resp.getWriter().flush();
         resp.getWriter().close();
     }
@@ -183,10 +227,14 @@ public class AdminController {
             int currentDepartmentId = userRights.getDepartment().getId();
             if(currentDepartmentId == departmentId){
                 isRightsExist = true;
-                userRights.setRights(rights);
+                if(rights.length()>0) {
+                    userRights.setRights(rights);
+                } else {
+                    userRightsList.remove(userRights);
+                }
             }
         }
-        if(!isRightsExist){
+        if(!isRightsExist && rights.length()>0){
             UserRights newUserRights = new UserRights();
             newUserRights.setDepartment(department);
             newUserRights.setRights(rights);
@@ -196,8 +244,25 @@ public class AdminController {
 
         }
         if(userService.saveUser(user)){
-            message = "Пользователю " + user.getUserSurname() + " " + user.getUserFirstname() + " добавлены права.";
-// TODO send email to username
+            String userName = user.getUserSurname() + " " + user.getUserFirstname();
+            String email = user.getEmail();
+            if(rights.length()>0){
+                String departmentString = department.getDepartmentName() + ", " + department.getBranch().getBranchName();
+                String userRights;
+                if(rights.equals("reader")){userRights = "просмотр записей и получение отчетов";}
+                else if(rights.equals("editor")){userRights = "внесение и редактирование записей";}
+                else if(rights.equals("account")){userRights = "по учету термоконтейнеров";}
+                else {userRights = "undefined";}
+                if(emailService.sendNewRightsMessage(userName, email, departmentString, userRights)){
+                    message = "Пользователю " + userName + " добавлены (изменены) права. \n" +
+                    "Сообщение об изменении прав отправлено на корпоративный почтовый адрес пользователя.";
+                } else {
+                    message = "Пользователю " + userName + " добавлены (изменены) права.\n" +
+                      "ВНИМАНИЕ! Из-за сбоя почтовой службы сообщение об изменении прав не было отправлено на корпоративный почтовый адрес пользователя.";
+                }
+            } else {
+                message = "Пользователю " + userName + " убраны права по объекту.";
+            }
         } else {
             message = "Ошибка изменения прав пользователя";
         }
@@ -212,10 +277,12 @@ public class AdminController {
     public  void changeAlarmGroup(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
         int id = Integer.parseInt(req.getParameter("id"));
+        int departmentId = Integer.parseInt(req.getParameter("departmentId"));
         String alarmGroupName = req.getParameter("alarmGroupName");
         if(id > 0){
             AlarmGroup alarmGroup = alarmGroupService.findAlarmGroupById(id);
             alarmGroup.setAlarmGroupName(alarmGroupName);
+            alarmGroup.setDepartmentId(departmentId);
             if(alarmGroupService.saveAlarmGroup(alarmGroup)){
                 message = "Название группы оповещения изменено.";
             } else {
@@ -228,6 +295,7 @@ public class AdminController {
             } else {
                 AlarmGroup newAlarmGroup = new AlarmGroup();
                 newAlarmGroup.setAlarmGroupName(alarmGroupName);
+                newAlarmGroup.setDepartmentId(departmentId);
                 List<User> users = new ArrayList<>();
                 newAlarmGroup.setUsers(users);
                 if (alarmGroupService.addNewAlarmGroup(newAlarmGroup)) {
@@ -243,6 +311,7 @@ public class AdminController {
         resp.getWriter().flush();
         resp.getWriter().close();
     }
+
     @PostMapping("/admin/edit-alarm-group/delete-group")
     public  void deleteAlarmGroup(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
@@ -251,7 +320,7 @@ public class AdminController {
         if(alarmGroupService.deleteAlarmGroup(id)){
             message = "Группа оповещения удалена.";
         } else {
-            message = "Ошибка удаления группы оповещения. Повторите.";
+            message = "Ошибка удаления группы оповещения, возможно имеются работники в группе оповещения, которых предварительно следует убрать. Повторите.";
         }
         resp.setContentType("text");
         resp.setCharacterEncoding("UTF-8");
@@ -295,6 +364,7 @@ public class AdminController {
         resp.getWriter().flush();
         resp.getWriter().close();
     }
+
     @PostMapping("/admin/edit-alarm-group/get-user-group")
     public  void getUsersFromAlarmGroup(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
@@ -313,17 +383,19 @@ public class AdminController {
     public  void resetPassword(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
         Long id = Long.parseLong(req.getParameter("id"));
-        String password = req.getParameter("password");
         User user = userService.findUserById(id);
+        TemporaryPasswordGenerator generator = new TemporaryPasswordGenerator();
+        String password = generator.generateTemporaryPassword();
+        System.out.println("Reset user's password, login: " + user.getUsername() + ", password: " + password);
         user.setPassword(password);
         user.setTemporary(true);
-        String toAddress = user.getEmail();
+        String email = user.getEmail();
         if(userService.changePassword(user)){
-            if (emailService.sendTemporaryPassword(toAddress, password)) {
+            if(emailService.sendTemporaryPassword(email, password)){
                 message = "Временный пароль выслан на адрес корпоративной электронной почты пользователю:  " + user.getUserSurname() + " " + user.getUserFirstname();
             } else {
-                message = "Ошибка отправки разового пароля на адрес электронной почты пользователя: " + user.getUserSurname() + " " + user.getUserFirstname() +
-                        "\nПовторите позднее или направьте разовый пароль:  " + password + "  пользователю со своего почтового сервиса на адрес: " + toAddress;
+                message = "ВНИМАНИЕ! Ошибка отправки разового пароля на адрес электронной почты пользователя: " + user.getUserSurname() + " " + user.getUserFirstname() +
+                        "\nПовторите сброс пароля позднее или направьте разовый пароль:  " + password + "  пользователю со своего почтового сервиса на адрес: " + email;
             }
         } else {
             message = "Ошибка сброса пароля пользователя";
@@ -344,7 +416,6 @@ public class AdminController {
         String position = req.getParameter("position");
         String email = req.getParameter("email");
         String username = req.getParameter("username");
-        Long curatorId = Long.parseLong(req.getParameter("curatorId"));
         boolean isEnabled = Boolean.parseBoolean(req.getParameter("isEnabled"));
         User user = userService.findUserById(id);
         user.setUserSurname(userSurname);
@@ -353,12 +424,6 @@ public class AdminController {
         user.setEmail(email);
         user.setUsername(username);
         user.setEnabled(isEnabled);
-        if(curatorId>0) {
-            User curator = userService.findUserById(curatorId);
-            user.setCurator(curator);
-        } else {
-            user.setCurator(null);
-        }
 
         if(userService.saveUser(user)){
             message = "Данные пользователя *" + user.getUserSurname() + " " + user.getUserFirstname() + "* изменены.";
@@ -393,8 +458,46 @@ public class AdminController {
         resp.getWriter().close();
     }
 
+    @PostMapping("/admin/del-user")
+    public  void deleteUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        req.setCharacterEncoding("UTF-8");
+        Long id = Long.parseLong(req.getParameter("id"));
+        User user = userService.findUserById(id);
+        user.setEnabled(false);
+        if(userService.saveUser(user)){
+            message = "Функции пользователя выключены при сохранении всех записей в базе данных.";
+        } else {
+            message = "Ошибка удаления пользователя";
+        }
+        resp.setContentType("text");
+        resp.setCharacterEncoding("UTF-8");
+        resp.getWriter().print(message);
+        resp.getWriter().flush();
+        resp.getWriter().close();
+    }
 
+    @PostMapping("/admin/find-department")
+    public void findDepartment(HttpServletRequest req, HttpServletResponse resp, Model model, RedirectAttributes attributes) throws IOException {
+        req.setCharacterEncoding("UTF-8");
+        int branchId = Integer.parseInt(req.getParameter("branchId"));
+        List<Department> departments = departmentService.findAllByBranchId(branchId);
+        int departmentId= 1;
 
-
+        if(departments!=null && departments.size()>0){
+            int i = -1;
+            do {
+                i++;
+                departmentId = departments.get(i).getId();
+            } while(departments.get(i).getDepartmentName().indexOf("борат")<0 && i<departments.size()-1);
+            if(departments.get(i).getDepartmentName().indexOf("борат")<0){
+                departmentId = 1;
+            }
+        }
+        resp.setContentType("text");
+        resp.setCharacterEncoding("UTF-8");
+        resp.getWriter().print(departmentId + "");
+        resp.getWriter().flush();
+        resp.getWriter().close();
+    }
 
 }

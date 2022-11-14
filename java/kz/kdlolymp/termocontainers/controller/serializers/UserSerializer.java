@@ -21,12 +21,6 @@ public class UserSerializer implements JsonSerializer<User>{
         jObject.addProperty("position", user.getPosition());
         jObject.addProperty("email", user.getEmail());
         jObject.addProperty("departmentId", user.getDepartmentId());
-        if(user.getCurator()!=null) {
-            jObject.addProperty("curatorId", user.getCurator().getId());
-            jObject.addProperty("curatorName", user.getCurator().getUserSurname() + " " + user.getCurator().getUserFirstname());
-        } else {
-            jObject.addProperty("curatorId", 0);
-        }
         jObject.addProperty("isEnabled", user.isEnabled());
         jObject.addProperty("isTemporary", user.isTemporary());
         jObject.addProperty("role", user.getRole());

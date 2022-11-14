@@ -23,7 +23,9 @@ public class BranchService {
     @Autowired
     private CompanyRepository companyRepository;
     @Autowired
-    private DepartmentRepository departmentRepository;
+    private  ContainerNoteService containerNoteService;
+    @Autowired
+    private  DepartmentService departmentService;
     @PersistenceContext
     private EntityManager manager;
 
@@ -46,13 +48,29 @@ public class BranchService {
     public List<Branch> findAllByCompanyId(int companyId){
         return branchRepository.findByCompanyId(companyId);
     }
-    public void deleteBranch(int id){
+    public boolean deleteBranch(int id){
         Branch branch = branchRepository.findBranchById(id);
-        List<Department> departments = departmentRepository.findAllByBranchId(branch.getId());
-        for(Department department: departments){
-            departmentRepository.delete(department);
+        List<Department> departments = departmentService.findAllByBranchId(branch.getId());
+        if(departments!=null && departments.size()>0) {
+            boolean isNoteExist = false;
+            for (Department department : departments) {
+                if (containerNoteService.checkNotesByDepartmentId(department.getId())) {
+                    isNoteExist = true;
+                }
+            }
+            if (isNoteExist) {
+                return false;
+            } else {
+                for (Department department : departments) {
+                    departmentService.deleteDepartment(department.getId());
+                }
+                branchRepository.delete(branch);
+                return true;
+            }
+        } else{
+            branchRepository.delete(branch);
+            return true;
         }
-        branchRepository.delete(branch);
     }
     public List<Branch> findAllBySorted(){
         List<Branch> dBbranches = manager.createQuery("SELECT b FROM Branch b", Branch.class)

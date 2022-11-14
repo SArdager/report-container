@@ -42,9 +42,9 @@ public class WorkController {
     @Autowired
     private ContainerNoteService containerNoteService;
     @Autowired
-    private ProbeService probeService;
-    @Autowired
     private BetweenPointService betweenPointService;
+    @Autowired
+    private AlarmGroupService alarmGroupService;
     @Autowired
     private DefaultEmailService emailService;
     private String message;
@@ -59,7 +59,7 @@ public class WorkController {
         model.addAttribute("user", user);
         model.addAttribute("department", department);
         model.addAttribute("userRights", userRights);
-        return "/work-starter";
+        return "work-starter";
     }
 
     private User getUserFromAuthentication() {
@@ -104,7 +104,7 @@ public class WorkController {
         model.addAttribute("user", user);
         model.addAttribute("department", department);
         model.addAttribute("userRights", userRights);
-        return "/user/check-in";
+        return "user/check-in";
     }
     @RequestMapping("/user/check-between")
     public  String viewCheckBetween(Model model){
@@ -116,7 +116,7 @@ public class WorkController {
         model.addAttribute("user", user);
         model.addAttribute("department", department);
         model.addAttribute("userRights", userRights);
-        return "/user/check-between";
+        return "user/check-between";
     }
 
     @RequestMapping("/user/check-out")
@@ -127,13 +127,11 @@ public class WorkController {
         UserRights userRights = chooseNameRights(departmentId, userRightsList);
         Department department = departmentService.findDepartmentById(departmentId);
         List<Branch> branches = branchService.findAllBySorted();
-        List<Probe> probes = probeService.findAll();
         model.addAttribute("user", user);
         model.addAttribute("department", department);
         model.addAttribute("branches", branches);
-        model.addAttribute("probes", probes);
         model.addAttribute("userRights", userRights);
-        return "/user/check-out";
+        return "user/check-out";
     }
 
     @RequestMapping("/user/check-journal")
@@ -148,7 +146,7 @@ public class WorkController {
         model.addAttribute("department", department);
         model.addAttribute("branches", branches);
         model.addAttribute("userRights", userRights);
-        return "/user/check-journal";
+        return "user/check-journal";
     }
 
     @RequestMapping("/user/check-container")
@@ -165,13 +163,13 @@ public class WorkController {
         model.addAttribute("department", department);
         model.addAttribute("branches", branches);
         model.addAttribute("userRights", userRights);
-        return "/user/check-container";
+        return "user/check-container";
     }
+
     @PostMapping("/user/check-out/send")
     public  void checkOutContainer(HttpServletRequest req, HttpServletResponse resp) throws IOException, ParseException {
         req.setCharacterEncoding("UTF-8");
         int departmentToId = Integer.parseInt(req.getParameter("toId"));
-        int probeId = Integer.parseInt(req.getParameter("probeId"));
         Long payment = Long.parseLong(req.getParameter("payment"));
         String containerNumber = req.getParameter("containerNumber");
         String text = req.getParameter("text");
@@ -179,7 +177,6 @@ public class WorkController {
         Container container = containerService.findByContainerNumber(containerNumber);
         User user = getUserFromAuthentication();
         ContainerNote containerNote = new ContainerNote();
-
         if(container.getDepartment().getId()==user.getDepartmentId()) {
             if(containerNoteService.isContainerSend(container) && isFirstSend){
                 message = "Данный термоконтейнер уже оформлен на отправку. \nИзменить место назначения доставки?";
@@ -194,8 +191,28 @@ public class WorkController {
                 containerNote.setToDepartment(toDepartment);
                 containerNote.setOutUser(user);
                 containerNote.setSendTime(dateTime);
-                TimeStandard timeStandard = timeStandardService.findByParameters(user.getDepartmentId(), departmentToId, probeId);
-                containerNote.setTimeStandard(timeStandard.getTimeStandard());
+                TimeStandard timeStandard = timeStandardService.findByParameters(user.getDepartmentId(), departmentToId);
+                if(timeStandard!=null && timeStandard.getTimeStandard()>0) {
+                    containerNote.setTimeStandard(timeStandard.getTimeStandard());
+                } else {
+                    containerNote.setTimeStandard(0);
+                    List<User> users = alarmGroupService.getAlarmUsersByDepartmentId(outDepartment.getId());
+                    if(users!=null && users.size()>0) {
+                        if (emailService.sendTimeStandardNote(users, departmentToId, outDepartment.getId())) {
+                            containerNote.setDelayNote("Оповещение об отсутствии в системе срока доставки отправлено");
+                        } else {
+                            containerNote.setDelayNote("Ошибка почтового сервиса или отсутствует группа оповещения. Оповещение об отсутствии в системе срока доставки не было разослано");
+                        }
+                    } else {
+                        if(emailService.sendMessageToAdmin("Отсутствует лицо для информирования об отсутствии времени доставки между объектами: \n" +
+                                outDepartment.getDepartmentName() + ", " + outDepartment.getBranch().getBranchName() + " и " +
+                                "\nи " + toDepartment.getDepartmentName() + ", " + outDepartment.getBranch().getBranchName() + ".")){
+                            containerNote.setDelayNote("Отсутствует группа оповещения. Оповещение об отсутствии группы оповещения было направлен администратору системы.");
+                        } else {
+                            containerNote.setDelayNote("Ошибка почтового сервиса и отсутствие группы оповещения. Оповещение об ошибке не было разослано");
+                        }
+                    }
+                }
                 containerNote.setSendTime(dateTime);
                 containerNote.setSendNote(text);
                 containerNote.setSendPay(payment);
@@ -225,7 +242,6 @@ public class WorkController {
         resp.getWriter().flush();
         resp.getWriter().close();
     }
-
 
     @PostMapping("/user/check-out/save-changes")
     public  void changesOutContainer(HttpServletRequest req, HttpServletResponse resp) throws IOException, ParseException {
@@ -394,41 +410,52 @@ public class WorkController {
         LocalDateTime currentDateTime = LocalDateTime.parse(dateString, formatter);
         Department toDepartment = departmentService.findDepartmentById(user.getDepartmentId());
         Container container = containerService.findByContainerNumber(containerNumber);
-        String regId = container.getDepartment().getId() + "";
-        String depId = toDepartment.getId() + "";
-        if(regId.equals(depId)) {
-            message = "Прибытие данного термоконтейнера уже зарегистрировано.";
-        } else {
-            ContainerNote note = containerNoteService.findNoteByContainerAndToDepartment(containerNumber, user.getDepartmentId());
-            if (note.getId() != null) {
+        ContainerNote note = containerNoteService.findLastNoteByContainer(containerNumber);
+        int toDepartmentId = user.getDepartmentId();
+        int outDepartmentId = note.getOutDepartment().getId();
+        if(note.isSend()) {
+            if (toDepartmentId == note.getToDepartment().getId()) {
                 note.setToUser(user);
                 note.setArriveTime(currentDateTime);
                 LocalDateTime sendDateTime = note.getSendTime();
                 LocalDateTime waitDateTime = sendDateTime.plusHours(note.getTimeStandard());
                 Long delayHours = getDelay(currentDateTime, waitDateTime);
-                note.setDelayTime(getDelay(currentDateTime, waitDateTime));
+                note.setDelayTime(delayHours);
                 note.setArriveNote(text);
                 note.setSend(false);
                 container.setDepartment(toDepartment);
                 note.setContainer(container);
                 if(delayHours>3){
-                    if(emailService.sendDelayNote(delayHours, note)){
-                        note.setDelayNote("Оповещение о нарушении срока доставки разослано");
+                    List<User> toDepartmentUsers = alarmGroupService.getAlarmUsersByDepartmentId(toDepartmentId);
+                    List<User> outDepartmentUsers = alarmGroupService.getAlarmUsersByDepartmentId(outDepartmentId);
+                    if(toDepartmentUsers!=null || outDepartmentUsers!=null){
+                        if((toDepartmentUsers!=null && emailService.sendDelayNote(toDepartmentUsers, delayHours, note)) ||
+                                (outDepartmentUsers!=null && emailService.sendDelayNote(outDepartmentUsers, delayHours, note))){
+                            note.setDelayNote("Оповещение о нарушении срока доставки разослано");
+                        } else {
+                            note.setDelayNote("Ошибка почтового сервиса. Оповещение о нарушении срока доставки не было разослано");
+                        }
                     } else {
-                        note.setDelayNote("Ошибка почтового сервиса. Оповещение о нарушении срока доставки не было разослано");
+                        note.setDelayNote("Отсутствуют группы оповещения о задержке. Оповещение о нарушении срока доставки не было разослано");
                     }
                 }
                 if(containerNoteService.saveNote(note)){
-                    message = "Прибытие термоконтейнера внесено в базу.";
+                    if(delayHours>0) {
+                        message = "Прибытие термоконтейнера внесено в базу. Опоздание доставки - " + delayHours + " часов.";
+                    } else {
+                        message = "Прибытие термоконтейнера внесено в базу. Доставлено вовремя";
+                    }
                 } else {
                     message = "Ошибка регистрации прибытия термоконтейнера. Повторите.";
                 }
             } else {
                 message = "Данный объект не является конечным получателем термоконтейнера. \n" +
-                        "Промежуточную регистрацию по маршруту следования термоконтейнера следует оформить на вкладке ПРОМЕЖУТОЧНЫЙ ОБЪЕКТ РЕГИСТРАЦИИ.\n\n" +
-                        "ЖЕЛАЕТЕ ПРЕРВАТЬ МАРШРУТ СЛЕДОВАНИЯ ТЕРМОКОНТЕЙНЕРА И ОФОРМИТЬ ЕГО ПРИЕМКУ?" +
+                        "Промежуточную регистрацию по маршруту следования термоконтейнера следует оформлять на вкладке ПРОМЕЖУТОЧНЫЙ ОБЪЕКТ РЕГИСТРАЦИИ (ссылка - Регистрация на объекте).\n\n" +
+                        "ЖЕЛАЕТЕ ПРЕРВАТЬ МАРШРУТ СЛЕДОВАНИЯ ТЕРМОКОНТЕЙНЕРА И ОФОРМИТЬ ЕГО ПРИЕМКУ НА ДАННОМ ОБЪЕКТЕ?" +
                         "\nНе забудьте указать причину прерывания маршрута следования термоконтейнера! ";
             }
+        } else {
+            message = "Прибытие данного термоконтейнера уже зарегистрировано.";
         }
         resp.setContentType("text");
         resp.setCharacterEncoding("UTF-8");

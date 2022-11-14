@@ -1,7 +1,6 @@
 package kz.kdlolymp.termocontainers.controller.serializers;
 
 import com.google.gson.*;
-import kz.kdlolymp.termocontainers.entity.BetweenPoint;
 import kz.kdlolymp.termocontainers.entity.ContainerNote;
 
 import java.lang.reflect.Type;

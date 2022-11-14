@@ -43,7 +43,6 @@ public class EmailController {
             LOG.error("Error while sending out email..{}", mailException.getStackTrace());
             return new ResponseEntity<>("Unable to send email", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
         return new ResponseEntity<>("Please check your inbox for order confirmation", HttpStatus.OK);
     }
 

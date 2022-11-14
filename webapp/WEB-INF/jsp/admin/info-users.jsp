@@ -6,9 +6,9 @@
 <head>
   <meta charset="utf-8">
   <title>Users information page</title>
-  <link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/style.css">
-    <script type="text/javascript" src="${contextPath}/resources/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="${contextPath}/resources/js/showUserRights.js"></script>
+  <link rel="stylesheet" type="text/css" href="../resources/css/style.css">
+    <script type="text/javascript" src="../resources/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../resources/js/showUserRights.js"></script>
 
 </head>
 
@@ -16,16 +16,15 @@
   <section>
      <div class="container">
         <div class="user_title">
-            <a style="margin-top: 4px;" href="/logout">Выйти</a>
+            <a style="margin-top: 4px;" href="../logout">Выйти</a>
         </div>
         <hr>
         <h1>Информация о пользователях</h1>
         <br>
-        <a href="/admin">Вернуться</a>
+        <a href="../admin">Вернуться</a>
         <br>
         <h2><div id="result_line"></div></h2>
-        <br>
-
+        <p>
         <div class="main_block">
            <div class="field">
                <label>Поиск по фамилии</label>
@@ -35,10 +34,12 @@
                <label>Поиск по имени</label>
                <input type="text" id="search_firstname" size="40" placeholder="Любые буквы имени" required/>
            </div>
-        </div>
-        <p>
         <br>
-        <button id="btn_find_user" style="margin-left: 150px" >Найти</button>
+           <div class="field">
+               <label></label>
+                <button id="btn_find_user" >Найти</button>
+           </div>
+        </div>
         </p>
         <div id="show_table" style="display:none;">
             <div class="cut_line" id="line_cut_table" >Скрыть таблицу пользователей</div>
@@ -50,7 +51,6 @@
                     <th>Фамилия, имя</th>
                     <th>Должность</th>
                     <th>Email</th>
-                    <th>Куратор</th>
                     <th>Активность</th>
                     <th>Роль</th>
                 </thead>
@@ -62,12 +62,12 @@
                 <div class="cut_line" id="line_cut_rights" >Скрыть права пользователя</div>
                 <table border ="1">
                 <caption>
-                    <div class="title_row" style="font-weight: bold; margin-left: 20px">
+                    <div class="title_row" style="font-weight: bold; margin-left: 5%">
                         Права пользователя:
                         <div class="color_name" id="userLogin" ></div>
                     </div>
                 </caption>
-                    <thead>
+                    <thead tabindex="0">
                         <th>Объект (наименование, филиал)</th>
                         <th>Права по объекту</th>
                     </thead>
@@ -109,7 +109,7 @@
         });
         $('#btn_find_user').on('click', function(event){
             $.ajax({
-                url: '/admin/find-user',
+                url: '../admin/find-user',
                 method: 'POST',
                 dataType: 'json',
                 data: {surname: $('#search_surname').val(), firstname: $('#search_firstname').val()},
@@ -125,8 +125,7 @@
                             new_lines_html+="<tr><td style='color: blue; text-decoration: underline'>"+ user.username + "</td><td>" +
                                 user.userSurname + " " + user.userFirstname + "</td><td>" +
                                 user.position + "</td><td>" + user.email + "</td><td>" +
-                                user.curatorName + "</td><td>" + user.isEnabled + "</td><td>" +
-                                user.role + "</td></tr>";
+                                user.isEnabled + "</td><td>" + user.role + "</td></tr>";
                         }
                     });
                     body.prepend(new_lines_html);

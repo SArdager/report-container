@@ -50,7 +50,7 @@ public class SecurityConfiguration {
                 .loginPage("/login")
                 .permitAll()
                 .successHandler(changeTemporaryPasswordAuthenticationHandler())
-//                .defaultSuccessUrl("/work-starter")
+//                .defaultSuccessUrl("work-starter")
             .and()
                 .logout()
                 .permitAll()

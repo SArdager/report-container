@@ -52,6 +52,12 @@ public class UserService implements UserDetailsService {
     public List<User> allUsers(){
         return userRepository.findAll();
     }
+    public List<User> getAllByDepartmentId(int departmentId){
+        List<User> users = new ArrayList<>();
+        users = manager.createQuery("SELECT u FROM User u WHERE u.departmentId = " + departmentId, User.class)
+                .getResultList();
+        return users;
+    }
 
     public boolean saveUser(User user){
         userRepository.save(user);
@@ -73,6 +79,11 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
         return true;
     }
+    public List<User> getAdmins() {
+        return manager.createQuery("SELECT u FROM User u WHERE u.role = :paramRole", User.class)
+                .setParameter("paramRole", "ADMIN").setMaxResults(10).getResultList();
+    }
+
     public List<User> getUsersByPartUsername(String text) {
         return manager.createQuery("SELECT u FROM User u WHERE u.userSurname LIKE :text", User.class)
                 .setParameter("text", text).setMaxResults(20).getResultList();

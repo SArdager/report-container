@@ -1,4 +1,70 @@
-window.addEventListener("load", function(){
+$(document).ready(function(){
+    $('#reload_journal').on('click', function(){
+        var departmentId = $('#department_id').val();
+        $('#totalNotes').val(0);
+        $('#pages_journal_title').html('');
+        $('#notes_table_body').html('');
+        if(departmentId==1){
+            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
+                departmentId = $('#select_department').val();
+            }
+        }
+        $('#line_cut_note').click();
+        if(departmentId>0){
+            $.ajax({
+                url: '../user/load-data/journal-totalNotes',
+                method: 'POST',
+                dataType: 'json',
+                data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), departmentId: departmentId},
+                success: function(totalElements) {
+                    let totalNotes = parseInt(totalElements);
+                    if(totalNotes>0){
+                        $('#totalNotes').val(totalNotes);
+                        showNotesPage(0, departmentId);
+                    }
+                },
+                error:  function(response) {
+                    alert("Ошибка обращения в базу данных. Повторите.");
+                }
+            });
+        }
+    });
+
+    function showNotesPage(pageNumber, departmentId){
+        var pageSize = $('#pageSize').val();
+        var totalNotes = $('#totalNotes').val();
+        $.ajax({
+            url: '../user/load-data/journal-notes',
+            method: 'POST',
+            dataType: 'json',
+            data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(),
+                    departmentId: departmentId, pageNumber: pageNumber, pageSize: pageSize},
+            success: function(notes) {
+                var pages_html = "";
+                var notes_html = "";
+                var pages_journal_title = $('#pages_journal_title');
+                var notes_table_body = $('#notes_table_body');
+                pages_journal_title.html('');
+                notes_table_body.html('');
+                if(notes.length>0){
+                    pages_html = getPagesHtml(pageNumber, pageSize, totalNotes);
+                    pages_journal_title.prepend(pages_html);
+                    console.log("notes.length: " + notes.length);
+                    $.each(notes, function(key, note){
+                    console.log("notes key/id: " + key + "/" + note.id);
+                        notes_html += "<tr><td style='color: blue; text-decoration: underline'>" + note.id + "</td><td>" +
+                        note.sendTime + "</td><td>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" +
+                        note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
+                    });
+                    notes_table_body.prepend(notes_html);
+                }
+            },
+            error:  function(response) {
+                alert("Ошибка обращения в базу данных. Повторите.");
+            }
+        });
+    }
+
     $('#notes_table_body').on('click', function(event){
         var elem = event.target || event.srcElement;
         var noteId = elem.innerHTML;
@@ -28,7 +94,7 @@ window.addEventListener("load", function(){
         $('#inputBetweenNote').val("");
         if(validNumber.test(noteId)){
             $.ajax({
-                url: '/user/load-data/note',
+                url: '../user/load-data/note',
                 method: 'POST',
                 dataType: 'json',
                 data: {noteId: noteId},
@@ -125,7 +191,7 @@ window.addEventListener("load", function(){
         var show_points = document.getElementById("show_points");
         if(validNumber.test(noteId)){
             $.ajax({
-                url: '/user/load-data/note',
+                url: '../user/load-data/note',
                 method: 'POST',
                 dataType: 'json',
                 data: {noteId: noteId},
@@ -162,7 +228,7 @@ window.addEventListener("load", function(){
         var show_route_points = document.getElementById("show_route_points");
         if(validNumber.test(noteId)){
             $.ajax({
-                url: '/user/load-data/note',
+                url: '../user/load-data/note',
                 method: 'POST',
                 dataType: 'json',
                 data: {noteId: noteId},
@@ -193,53 +259,29 @@ window.addEventListener("load", function(){
 
 
     $('#pages_journal_title').on('click', function(event){
-        var totalPages;
         var pageNumber;
         var elem = event.target || event.srcElement;
         var cellContent = elem.innerHTML;
         var pageSize = $('#pageSize').val();
         var totalNotes = $('#totalNotes').val();
+        var currentRow = $('#pages_journal_title').text();
+        pageNumber = getPageNumber(totalNotes, pageSize, cellContent, currentRow);
+        var departmentId = $('#department_id').val();
+        if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
+            departmentId = $('#select_department').val();
+        }
+        showNotesPage(pageNumber, departmentId);
+
+    });
+
+    function getPageNumber(totalNotes, pageSize, cellContent, currentRow){
+        var totalPages;
         if(totalNotes%pageSize>0){
             totalPages = parseInt(totalNotes/pageSize) + 1;
         } else{
             totalPages = parseInt(totalNotes/pageSize);
         }
-        pageNumber = getPageNumber(totalNotes, pageSize, cellContent, totalPages);
-        var departmentId = $('#department_id').val();
-        if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
-            departmentId = $('#select_department').val();
-        }
-        $.ajax({
-            url: '/user/load-data/journal-notes',
-            method: 'POST',
-            dataType: 'json',
-            data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(),
-                    departmentId: departmentId, pageNumber: pageNumber, pageSize: pageSize},
-            success: function(notes) {
-                var pages_html = "";
-                var notes_html = "";
-                var pages_journal_title = $('#pages_journal_title');
-                var notes_table_body = $('#notes_table_body');
-                pages_journal_title.html('');
-                notes_table_body.html('');
-                pages_html = getPagesHtml(pageNumber, totalPages, pageSize, totalNotes);
-                pages_journal_title.prepend(pages_html);
-                $.each(notes, function(key, note){
-                    notes_html += "<tr><td style='color: blue; text-decoration: underline'>" + note.id + "</td><td>" +
-                    note.sendTime + "</td><td>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" +
-                    note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
-                });
-                notes_table_body.prepend(notes_html);
-            },
-            error:  function(response) {
-                alert("Ошибка обращения в базу данных. Повторите.");
-            }
-        });
-    });
-
-    function getPageNumber(totalNotes, pageSize, cellContent, totalPages){
         var currentNoteNumber;
-        var currentRow;
         var pos1;
         var pos2;
         pos1 = cellContent.indexOf("(") + 1;
@@ -248,7 +290,6 @@ window.addEventListener("load", function(){
             currentNoteNumber = cellContent.substring(pos1, pos2);
             pageNumber = parseInt(currentNoteNumber/pageSize);
         } else{
-            currentRow = $('#pages_delay_title').text();
             let pos = currentRow.indexOf(". .");
             if(pos < 6) {
                 currentRow = currentRow.substring(12);
@@ -280,7 +321,13 @@ window.addEventListener("load", function(){
         return pageNumber;
     }
 
-    function getPagesHtml(pageNumber, totalPages, pageSize, totalNotes){
+    function getPagesHtml(pageNumber, pageSize, totalNotes){
+        var totalPages;
+        if(totalNotes%pageSize>0){
+            totalPages = parseInt(totalNotes/pageSize) + 1;
+        } else{
+            totalPages = parseInt(totalNotes/pageSize);
+        }
         var pages_html = "<tr>";
         if(pageNumber>2){
             pages_html+="<td class='pages'> ( . . . )  </td>";
@@ -306,23 +353,18 @@ window.addEventListener("load", function(){
     }
 
     $('#pages_payment_title').on('click', function(event){
-        var totalPages;
         var elem = event.target || event.srcElement;
         var cellContent = elem.innerHTML;
         var pageSize = $('#paymentPageSize').val();
         var totalNotes = $('#totalPaymentNotes').val();
-        if(totalNotes%pageSize>0){
-            totalPages = parseInt(totalNotes/pageSize) + 1;
-        } else{
-            totalPages = parseInt(totalNotes/pageSize);
-        }
-        var pageNumber = getPageNumber(totalNotes, pageSize, cellContent, totalPages);
+        var currentRow = $('#pages_payment_title').text();
+        var pageNumber = getPageNumber(totalNotes, pageSize, cellContent, currentRow);
         var departmentId = $('#department_id').val();
         if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
             departmentId = $('#select_department').val();
         }
         $.ajax({
-            url: '/control/payment/report-notes',
+            url: '../control/payment/report-notes',
             method: 'POST',
             dataType: 'json',
             data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), pageNumber: pageNumber,
@@ -333,7 +375,7 @@ window.addEventListener("load", function(){
                 var payment_table_body = $('#payment_table_body');
                 pages_payment_title.html('');
                 payment_table_body.html('');
-                var pages_html = getPagesHtml(pageNumber, totalPages, pageSize, totalNotes);
+                var pages_html = getPagesHtml(pageNumber, pageSize, totalNotes);
                 pages_payment_title.prepend(pages_html);
                 var sumPayment = 0;
                 $.each(notes, function(key, note){
@@ -352,23 +394,18 @@ window.addEventListener("load", function(){
     });
 
     $('#pages_delay_title').on('click', function(event){
-        var totalPages;
         var elem = event.target || event.srcElement;
         var cellContent = elem.innerHTML;
         var pageSize = $('#delayPageSize').val();
         var totalNotes = $('#totalDelayNotes').val();
-        if(totalNotes%pageSize>0){
-            totalPages = parseInt(totalNotes/pageSize) + 1;
-        } else{
-            totalPages = parseInt(totalNotes/pageSize);
-        }
-        var pageNumber = getPageNumber(totalNotes, pageSize, cellContent, totalPages);
+        var currentRow = $('#pages_delay_title').text();
+        var pageNumber = getPageNumber(totalNotes, pageSize, cellContent, currentRow);
         var departmentId = $('#department_id').val();
         if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
             departmentId = $('#select_department').val();
         }
         $.ajax({
-            url: '/control/delay/report-notes',
+            url: '../control/delay/report-notes',
             method: 'POST',
             dataType: 'json',
             data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), pageNumber: pageNumber,
@@ -379,7 +416,7 @@ window.addEventListener("load", function(){
                 var notes_html = "";
                 pages_delay_title.html('');
                 delay_table_body.html('');
-                var pages_delay_html = getPagesHtml(pageNumber, totalPages, pageSize, totalNotes);
+                var pages_delay_html = getPagesHtml(pageNumber, pageSize, totalNotes);
                 pages_delay_title.prepend(pages_delay_html);
                 $.each(notes, function(key, note){
                     notes_html += "<tr><td style='color: blue; text-decoration: underline'>" + note.id + "</td><td>" +
@@ -393,23 +430,19 @@ window.addEventListener("load", function(){
             }
         });
     });
+
     $('#pages_route_title').on('click', function(event){
         var show_route_points = document.getElementById("show_route_points");
         show_route_points.style.display = "none";
-        var totalPages;
         var elem = event.target || event.srcElement;
         var cellContent = elem.innerHTML;
         var pageSize = $('#routePageSize').val();
         var totalNotes = $('#totalRouteNotes').val();
-        if(totalNotes%pageSize>0){
-            totalPages = parseInt(totalNotes/pageSize) + 1;
-        } else{
-            totalPages = parseInt(totalNotes/pageSize);
-        }
-        var pageNumber = getPageNumber(totalNotes, pageSize, cellContent, totalPages);
+        var currentRow = $('#pages_route_title').text();
+        var pageNumber = getPageNumber(totalNotes, pageSize, cellContent, currentRow);
         var containerId = $('#select_container').val();
         $.ajax({
-            url: '/control/route/report-notes',
+            url: '../control/route/report-notes',
             method: 'POST',
             dataType: 'json',
             data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(),
@@ -420,7 +453,7 @@ window.addEventListener("load", function(){
                 var notes_html = "";
                 pages_route_title.html('');
                 route_table_body.html('');
-                var pages_route_html = getPagesHtml(pageNumber, totalPages, pageSize, totalNotes);
+                var pages_route_html = getPagesHtml(pageNumber, pageSize, totalNotes);
                 pages_route_title.prepend(pages_route_html);
                 $.each(notes, function(key, note){
                     notes_html += "<tr><td style='color: blue; text-decoration: underline'>" + note.id + "</td><td>" +

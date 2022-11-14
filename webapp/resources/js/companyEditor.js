@@ -5,13 +5,13 @@ $(document).ready(function(){
         if(companyName.length>1){
             if($('#select_company').val()!=1){
                 $.ajax({
-                    url: '/admin/change-company/company',
+                    url: '../admin/edit-company/company',
                     method: 'POST',
                     dataType: 'text',
                     data: {id: $('#select_company').val(), companyName: companyName},
                     success: function(message) {
-                        document.location.href = '/admin/change-company';
                         $('#result_line').html(message);
+                        setTimeout(() => { document.location.href = '../admin/edit-company';}, 800);
                     },
                     error:  function(response) {
                         alert("Ошибка обращения в базу данных. Повторите.");
@@ -30,7 +30,7 @@ $(document).ready(function(){
         if(branchName.length>1){
             if($('#select_branch').val()!=1){
                 $.ajax({
-                    url: '/admin/change-company/branch',
+                    url: '../admin/edit-company/branch',
                     method: 'POST',
                     dataType: 'text',
                     data: {id: $('#select_branch').val(), branchName: branchName, companyId: $('#select_company').val()},
@@ -56,7 +56,7 @@ $(document).ready(function(){
         if(departmentName.length>1){
             if($('#select_department').val()!=1){
                 $.ajax({
-                    url: '/admin/change-company/department',
+                    url: '../admin/edit-company/department',
                     method: 'POST',
                     dataType: 'text',
                     data: {id: $('#select_department').val(), departmentName: departmentName, branchId: $('#select_branch').val()},
@@ -84,13 +84,13 @@ $(document).ready(function(){
         if(x){
             if($('#select_company').val()>1){
                 $.ajax({
-                    url: '/admin/change-company/delete-company',
+                    url: '../admin/edit-company/delete-company',
                     method: 'POST',
                     dataType: 'text',
                     data: {id: $('#select_company').val()},
                     success: function(message) {
-                        document.location.href = '/admin/change-company';
                         $('#result_line').html(message);
+                        setTimeout(() => { document.location.href = '../admin/edit-company';}, 800);
                     },
                     error:  function(response) {
                         alert("Ошибка обращения в базу данных. Повторите.");
@@ -109,7 +109,7 @@ $(document).ready(function(){
         if(x){
             if($('#select_branch').val()>1){
                 $.ajax({
-                    url: '/admin/change-company/delete-branch',
+                    url: '../admin/edit-company/delete-branch',
                     method: 'POST',
                     dataType: 'text',
                     data: {id: $('#select_branch').val()},
@@ -135,7 +135,7 @@ $(document).ready(function(){
         if(x){
             if($('#select_department').val()>1){
                 $.ajax({
-                    url: '/admin/change-company/delete-department',
+                    url: '../admin/edit-company/delete-department',
                     method: 'POST',
                     dataType: 'text',
                     data: {id: $('#select_department').val()},
@@ -161,7 +161,7 @@ $(document).ready(function(){
             btn_company.value = "Изменить";
             btn_del_company.type = "button";
             $.ajax({
-                url: '/user/change-department/select-company',
+                url: '../user/change-department/select-company',
                 method: 'POST',
                 dataType: 'json',
                 data: {companyId: $('#select_company').val()},
@@ -212,7 +212,7 @@ $(document).ready(function(){
             btn_del_branch.type = "button";
             btn_department.value = "Создать";
             $.ajax({
-                url: '/user/change-department/select-branch',
+                url: '../user/change-department/select-branch',
                 method: 'POST',
                 dataType: 'json',
                 data: {branchId: $('#select_branch').val()},

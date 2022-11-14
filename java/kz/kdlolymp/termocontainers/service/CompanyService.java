@@ -35,12 +35,20 @@ public class CompanyService {
     public List<Company> findAll() {
         return companyRepository.findAll();
     }
-    public void deleteCompany(int id){
+    public boolean deleteCompany(int id){
         Company company = companyRepository.findCompanyById(id);
         List<Branch> branches = company.getBranches();
+        boolean isExistNote = false;
         for(Branch branch: branches){
-            branchService.deleteBranch(branch.getId());
+            if(!branchService.deleteBranch(branch.getId())){
+                isExistNote = true;
+            }
         }
-        companyRepository.delete(company);
+        if(isExistNote){
+            return false;
+        } else {
+            companyRepository.delete(company);
+            return true;
+        }
     }
 }

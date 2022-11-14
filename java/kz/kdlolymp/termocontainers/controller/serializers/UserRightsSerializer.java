@@ -16,6 +16,7 @@ public class UserRightsSerializer implements JsonSerializer<UserRights> {
         jObject.addProperty("departmentId", userRights.getDepartment().getId());
         jObject.addProperty("departmentName", userRights.getDepartment().getDepartmentName());
         jObject.addProperty("branchName", userRights.getDepartment().getBranch().getBranchName());
+        jObject.addProperty("branchId", userRights.getDepartment().getBranch().getId());
         jObject.addProperty("rights", userRights.getRights());
         return jObject;
     }

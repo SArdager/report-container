@@ -8,6 +8,7 @@ $(document).ready(function(){
         var m_strNumber = "0123456789";
 
         if(checkPassword(strPassword) && checkConfirmPassword()){
+            $('#result_line').html("Отправлен запрос на смену пароля. Ожидайте.");
             $('#change_password').submit();
         }
 
@@ -56,11 +57,13 @@ $(document).ready(function(){
            return nCount;
        }
     });
+
     $('#btn_forget_password').on('click', function(){
         var login = $('#login').val();
         if(login.length>0){
+            $('#result_line').html("Направлен запрос на сброс пароля. Ожидайте ответа.");
             $.ajax({
-                url: '/forget-password',
+                url: 'forget-password',
                 method: 'POST',
                 dataType: 'text',
                 data: {username: login},

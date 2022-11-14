@@ -16,8 +16,6 @@ public class TimeStandard {
     private int firstPointId;
     @Column(name = "second_point_id")
     private int secondPointId;
-    @Column(name = "probe_id")
-    private int probeId;
 
     public TimeStandard() {
     }
@@ -38,10 +36,6 @@ public class TimeStandard {
 
     public void setSecondPointId(int secondPointId) { this.secondPointId = secondPointId; }
 
-    public int getProbeId() { return probeId; }
-
-    public void setProbeId(int probeId) { this.probeId = probeId; }
-
     @Override
     public String toString() {
         return "TimeStandard{" +
@@ -49,7 +43,6 @@ public class TimeStandard {
                 ", timeStandard=" + timeStandard +
                 ", firstPointId=" + firstPointId +
                 ", secondPointId=" + secondPointId +
-                ", probeId=" + probeId +
                 '}';
     }
 }

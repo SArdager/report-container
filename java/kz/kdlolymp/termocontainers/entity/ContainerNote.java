@@ -122,4 +122,5 @@ public class ContainerNote implements Serializable {
     public List<BetweenPoint> getBetweenPoints() {return betweenPoints;}
 
     public void setBetweenPoints(List<BetweenPoint> betweenPoints) {this.betweenPoints = betweenPoints;}
+
 }

@@ -1,9 +1,6 @@
 package kz.kdlolymp.termocontainers.service;
 
-import kz.kdlolymp.termocontainers.entity.Branch;
-import kz.kdlolymp.termocontainers.entity.Container;
-import kz.kdlolymp.termocontainers.entity.ContainerNote;
-import kz.kdlolymp.termocontainers.entity.Department;
+import kz.kdlolymp.termocontainers.entity.*;
 import kz.kdlolymp.termocontainers.repositories.ContainerRepository;
 import kz.kdlolymp.termocontainers.repositories.DepartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,14 +42,24 @@ public class ContainerService {
             return true;
         }
     }
+    public boolean checkContainerForValue(ContainerValue value){
+        return containerRepository.existsByValue(value);
+    }
 
     public List<Container> findAll() {
         return containerRepository.findAll();
     }
+    public List<Container> findAllByBranch(int branchId) {
+        List<Container> containers = new ArrayList<>();
+        try{
+            containers = manager.createQuery("SELECT c FROM Container c JOIN Department d ON c.department.id=d.id WHERE c.releaseDate=null AND c.department.branch.id = branchId", Container.class).getResultList();
+        } catch (NoResultException ex){}
+        return containers;
+    }
     public List<Container> findAllOrdered() {
         List<Container> containers = new ArrayList<>();
         try{
-            containers = manager.createQuery("SELECT c FROM Container c JOIN Department d ON c.department.id=d.id WHERE c.releaseDate=null ORDER BY c.department.branch.id ASC", Container.class).getResultList();
+            containers = manager.createQuery("SELECT c FROM Container c JOIN Department d ON c.department.id=d.id ORDER BY c.department.branch ASC", Container.class).getResultList();
         } catch (NoResultException ex){}
         return containers;
     }

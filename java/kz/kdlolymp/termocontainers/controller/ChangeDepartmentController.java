@@ -143,13 +143,13 @@ public class ChangeDepartmentController {
             model.addAttribute("user", user);
             model.addAttribute("department", department);
             model.addAttribute("userRights", userRights);
-            return new RedirectView("/user/check-journal");
+            return new RedirectView("../../work-starter");
 
         } else {
-            String errorMessage = "Отсутствуют права ректирования или просмотра в этом объекте";
+            String errorMessage = "Отсутствуют права редактирования или просмотра в этом объекте";
             attributes.addFlashAttribute("flashAttribute", "user/change-department/choose-department");
             attributes.addAttribute("errorMessage", errorMessage);
-            return new RedirectView("/user/change-department");
+            return new RedirectView("../change-department");
         }
     }
 

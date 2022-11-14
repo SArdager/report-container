@@ -1,3 +1,4 @@
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
 
@@ -5,11 +6,10 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>User rights changer page</title>
+  <title>Company editor page</title>
   <link rel="stylesheet" type="text/css" href="../resources/css/style.css">
     <script type="text/javascript" src="../resources/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="../resources/js/userRightsEditor.js"></script>
-    <script type="text/javascript" src="../resources/js/selectDepartment.js"></script>
+    <script type="text/javascript" src="../resources/js/companyEditor.js"></script>
 
 </head>
 
@@ -20,77 +20,70 @@
             <a style="margin-top: 4px;" href="../logout">Выйти</a>
         </div>
         <hr>
-        <h1>Изменение прав пользователя</h1>
+        <h1>Изменение структуры компании</h1>
         <br>
         <a href="../admin">Вернуться</a>
         <br>
         <h2><div id="result_line"></div></h2>
         <div class="main_block">
-                <div class="field">
-                    <label>Пользователь</label>
-                    <input type="text" id="user_name" size="40" placeholder="Первые три буквы фамилии" required/>
-                </div>
-                <input type="hidden" id="user_id" name="userId" value="0"/>
-                <input type="hidden" id="username"  value=""/>
-                <div class="field" id="show_select" style="display: none; ">
-                    <label style="color: blue;" >Кликните пользователя</label>
-                    <select id="select_user">
-                    </select>
-                </div>
-                <br>
+            <form:form modelAttribute="companyForm" id="change_company" method="post" action="../admin/change-company/company">
                 <div class="field">
                     <label>Предприятие</label>
-                    <select id="select_company">
+                    <select id="select_company" name="id" >
+                        <option value=-1>Создать новое предприятие</option>
                         <c:forEach var="company" items="${companies}">
                             <option value=${company.id}>${company.companyName}</option>
                         </c:forEach>
                     </select>
                 </div>
                 <div class="field">
+                    <label>Новое название</label>
+                    <input type="text" id="companyName" name="companyName" size="40" required/>
+                </div>
+            <div class="title_row" style="margin-left: 20%">
+                <input type="button" class ="two_in_line" id="btn_company" value="Создать" />
+                <input type="hidden" class ="two_in_line" id="btn_del_company" value="Удалить" />
+            </div>
+            </form:form>
+            <br>
+            <br>
+                <div class="field">
                     <label>Филиал</label>
-                    <select id="select_branch">
+                    <select id="select_branch" name="id">
+                        <option value=-1>Выберите предприятие</option>
                         <c:forEach var="branch" items="${branches}">
                             <option value=${branch.id}>${branch.branchName}</option>
                         </c:forEach>
                     </select>
                 </div>
                 <div class="field">
+                    <label>Новое название</label>
+                    <input type="text" id="branchName" name="branchName" size="40" required/>
+                </div>
+            <div class="title_row" style="margin-left: 20%">
+                <input type="hidden" class ="two_in_line" id="btn_branch" value="Создать" />
+                <input type="hidden" class ="two_in_line" id="btn_del_branch" value="Удалить" />
+            </div>
+            <br>
+            <br>
+                <div class="field">
                     <label>Объект</label>
-                    <select id="select_department" name="departmentId">
+                    <select id="select_department" name="id">
+                        <option value=-1>Выберите филиал</option>
                         <c:forEach var="department" items="${departments}">
                             <option value=${department.id}>${department.departmentName}</option>
                         </c:forEach>
                     </select>
                 </div>
-                <u>Права доступа</u>
                 <div class="field">
-                    <label>Убрать права</label>
-                    <input type="checkbox" id="resetId" checked />
+                    <label>Новое название</label>
+                    <input type="text" id="departmentName" name="departmentName" size="40" required/>
                 </div>
-                <div class="field">
-                    <label>Просмотр записей</label>
-                    <input type="checkbox" id="readerId"/>
-                </div>
-                <div class="field">
-                    <label>Внесение записей</label>
-                    <input type="checkbox" id="editorId" />
-                </div>
-                <div class="field">
-                    <label>Учет термоконтейнеров</label>
-                    <input type="checkbox" id="accountId" />
-                </div>
-                <input type="hidden" id="user_rights" name="rights" value="" />
-                <br>
-                <div class="field">
-                    <label>Дать/снять права администратора</label>
-                    <input type="checkbox" id="roleId" />
-                </div>
-                <input type="hidden" id="user_role" name="role" />
+            <div class="title_row" style="margin-left: 20%">
+                <input type="hidden" class ="two_in_line" id="btn_department" value="Создать" />
+                <input type="hidden" class ="two_in_line" id="btn_del_department" value="Удалить" />
+            </div>
         </div>
-        <p>
-        <br>
-        <button id="btn_rights" style="margin-left: 120px" >Изменить права</button>
-        </p>
 
      </div>
   </section>
@@ -99,7 +92,6 @@
         $(document).ready(function(){
             $("h1").css("color", "blue");
             $("h2").css("color", "red");
-            $('#select_company').trigger("change");
             var result_line = document.getElementById('result_line');
             var resultLineValue;
             var clickNumber = 0;
@@ -107,7 +99,7 @@
                 clickNumber++;
                 resultLineValue = $('#result_line').text();
                 if(clickNumber==0){
-                    $('#result_line').html("");
+                    $('#result_line').text("");
                 }
                 if(resultLineValue.length>0){
                     clickNumber = -1;

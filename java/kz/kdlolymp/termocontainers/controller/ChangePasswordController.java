@@ -11,9 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -32,12 +29,13 @@ public class ChangePasswordController {
     private DefaultEmailService emailService;
 
     private String message = "";
-    @RequestMapping("/changePassword")
+
+    @RequestMapping("/change-password")
     public String viewChangePassword(Model model){
-        return "/changePassword";
+        return "change-password";
     }
 
-    @PostMapping("/changePassword/change")
+    @PostMapping("/change-password/change")
     public  String changePassword(HttpServletRequest req, HttpServletResponse resp, Model model){
         String password = req.getParameter("password");
         String username = "";
@@ -53,10 +51,10 @@ public class ChangePasswordController {
         user.setPassword(password);
         user.setTemporary(false);
         if(userService.changePassword(user)){
-            return "redirect:/work-starter";
+            return "redirect: ../work-starter";
         } else{
             model.addAttribute("errorChange", "Ошибка смены пароля пользователя");
-            return "/changePassword";
+            return "change-password";
         }
 
     }
@@ -66,23 +64,23 @@ public class ChangePasswordController {
         req.setCharacterEncoding("UTF-8");
         String username = req.getParameter("username");
         User user = userService.findByUsername(username);
-        if(user!=null){
+        if(user!=null && user.isEnabled()){
             TemporaryPasswordGenerator generator = new TemporaryPasswordGenerator();
             String password = generator.generateTemporaryPassword();
-//            user.setPassword(password);
-//            user.setTemporary(true);
-//            if(userService.changePassword(user)) {
-            if(true) {
+            user.setPassword(password);
+            user.setTemporary(true);
+            if(userService.changePassword(user)) {
                 String toAddress = user.getEmail();
                 if (emailService.sendTemporaryPassword(toAddress, password)) {
-                    message = "Временный пароль выслан на адрес корпоративной электронной почты.";
+                    message = "Временный пароль отправлен на ваш адрес корпоративной электронной почты.";
                 } else {
                     message = "Ошибка сброса пароля. \nПовторите позднее или направьте заявку на сброс пароля в службу технической поддержки через сервис-платформу ELMA";
                 }
             } else {
                 message = "Ошибка сброса пароля. \nПовторите позднее или направьте заявку на сброс пароля в службу технической поддержки через сервис-платформу ELMA";
             }
-//            if(userService.changePassword(user)){
+        } else {
+            message = "";
         }
         resp.setContentType("text");
         resp.setCharacterEncoding("UTF-8");

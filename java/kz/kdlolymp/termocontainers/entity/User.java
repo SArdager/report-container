@@ -41,9 +41,6 @@ public class User implements UserDetails, Serializable {
     private String email;
     @Column(name = "department_id")
     private int departmentId;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name="curator_id")
-    private User curator;
     @Column(name = "is_temporary")
     private boolean isTemporary;
     @OneToMany(targetEntity = UserRights.class, cascade = CascadeType.ALL,
@@ -110,11 +107,6 @@ public class User implements UserDetails, Serializable {
     public int getDepartmentId() {return departmentId;}
 
     public void setDepartmentId(int departmentId) {this.departmentId = departmentId;}
-
-    public User getCurator() {return curator;}
-
-    public void setCurator(User curator) {this.curator = curator;}
-
     public boolean isTemporary() {return isTemporary;}
 
     public void setTemporary(boolean temporary) {isTemporary = temporary;}

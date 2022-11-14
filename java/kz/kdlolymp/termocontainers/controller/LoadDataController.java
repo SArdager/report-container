@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import kz.kdlolymp.termocontainers.controller.serializers.*;
 import kz.kdlolymp.termocontainers.entity.*;
+import kz.kdlolymp.termocontainers.excelExport.JournalExcelExporter;
 import kz.kdlolymp.termocontainers.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -60,40 +60,70 @@ public class LoadDataController {
         resp.getWriter().close();
     }
 
-    @PostMapping("/user/load-data/journal-totalNotes")
-    public void loadTotalNumber(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    @PostMapping("/user/load-data/journal-export-excel")
+    public void exportExcelNotes(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
-        int departmentId = 0;
+        int departmentId = Integer.parseInt(req.getParameter("exportDepartmentId"));
+        Department department = departmentService.findDepartmentById(departmentId);
+        String departmentName = department.getDepartmentName() + ", " + department.getBranch().getBranchName();
+        LocalDateTime[] localDateTimes = getLocalDateTime(req.getParameter("startDate"), req.getParameter("endDate"));
+        LocalDateTime startDateTime = localDateTimes[0];
+        LocalDateTime endDateTime = localDateTimes[1];
+
+        DateTimeFormatter rightFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String startDateString = startDateTime.format(rightFormatter);
+        String endDateString = endDateTime.format(rightFormatter);
+        List<ContainerNote> notes = containerNoteService.getNotesForExportExcel(departmentId, startDateTime, endDateTime);
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String currentDateString = currentDate.format(formatter);
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=notes_" + currentDateString + ".xlsx";
+        resp.setContentType("application/octet-stream");
+        resp.setHeader(headerKey, headerValue);
+        JournalExcelExporter excelExporter = new JournalExcelExporter(notes, departmentName, startDateString, endDateString);
+        excelExporter.export(resp);
+    }
+
+    private LocalDateTime[] getLocalDateTime(String fromDate, String untilDate){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime endDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);;
+        LocalDateTime startDateTime;
+        if(untilDate.length()>0){
+            LocalDate endDate = LocalDate.parse(untilDate, formatter);
+            LocalTime endTime = LocalTime.of(23, 59);
+            endDateTime = LocalDateTime.of(endDate,endTime);
+        }
+        if(endDateTime.isAfter(LocalDateTime.now())){
+            endDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        }
+        if(fromDate.length()>0){
+            LocalDate startDate = LocalDate.parse(fromDate, formatter);
+            LocalTime startTime = LocalTime.of(0, 0);
+            startDateTime = LocalDateTime.of(startDate, startTime);
+        } else {
+            startDateTime = endDateTime.minusMonths(1);
+        }
+        LocalDateTime[] localDateTimes = new LocalDateTime[2];
+        localDateTimes[0] = startDateTime;
+        localDateTimes[1] = endDateTime;
+        return localDateTimes;
+    }
+
+    @PostMapping("/user/load-data/journal-totalNotes")
+    public void loadTotalNotes(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        req.setCharacterEncoding("UTF-8");
+        int departmentId = 1;
         if(req.getParameter("departmentId").length()>0) {
             departmentId = Integer.parseInt(req.getParameter("departmentId"));
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime startDateTime = null;
-        LocalDateTime endDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        if(req.getParameter("startDate").length()>0){
-            LocalDate startDate = LocalDate.parse(req.getParameter("startDate"), formatter);
-            LocalTime startTime = LocalTime.of(0, 0);
-            startDateTime = LocalDateTime.of(startDate, startTime);
-        }
-        if(req.getParameter("endDate").length()>0){
-            LocalDate endDate = LocalDate.parse(req.getParameter("endDate"), formatter);
-            LocalTime endTime = LocalTime.of(23, 59);
-            endDateTime = LocalDateTime.of(endDate, endTime);
-            if(endDateTime.isAfter(LocalDateTime.now())){
-                endDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-            }
-        }
-        long count = 0;
-        if(departmentId>0) {
-            if (startDateTime != null) {
-                count = containerNoteService.getAllNotesNumberByDatesAndDepartmentId(departmentId, startDateTime, endDateTime);
-            } else {
-                count = containerNoteService.getAllNotesNumberByDepartmentId(departmentId);
-            }
-        }
+        LocalDateTime[] localDateTimes = getLocalDateTime(req.getParameter("startDate"), req.getParameter("endDate"));
+        LocalDateTime startDateTime = localDateTimes[0];
+        LocalDateTime endDateTime = localDateTimes[1];
+        long count = containerNoteService.getAllNotesNumberByDatesAndDepartmentId(departmentId, startDateTime, endDateTime);
         resp.setContentType("json");
         resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().print(this.gson.toJson(count + ""));
+        resp.getWriter().print(this.gson.toJson(count));
         resp.getWriter().flush();
         resp.getWriter().close();
     }
@@ -104,29 +134,16 @@ public class LoadDataController {
         int departmentId = Integer.parseInt(req.getParameter("departmentId"));
         int pageNumber = Integer.parseInt(req.getParameter("pageNumber"));
         int pageSize = Integer.parseInt(req.getParameter("pageSize"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime startDateTime = null;
-        LocalDateTime endDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        if(req.getParameter("startDate").length()>0){
-            LocalDate startDate = LocalDate.parse(req.getParameter("startDate"), formatter);
-            LocalTime startTime = LocalTime.of(0, 0);
-            startDateTime = LocalDateTime.of(startDate, startTime);
-        }
-        if(req.getParameter("endDate").length()>0){
-            LocalDate endDate = LocalDate.parse(req.getParameter("endDate"), formatter);
-            LocalTime endTime = LocalTime.of(23, 59);
-            endDateTime = LocalDateTime.of(endDate, endTime);
-            if(endDateTime.isAfter(LocalDateTime.now())){
-                endDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-            }
-        }
+        LocalDateTime[] localDateTimes = getLocalDateTime(req.getParameter("startDate"), req.getParameter("endDate"));
+        LocalDateTime startDateTime = localDateTimes[0];
+        LocalDateTime endDateTime = localDateTimes[1];
         List<ContainerNote> notes;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        if(startDateTime!=null){
+//        if(startDateTime!=null){
             notes = containerNoteService.getNotesByDatesAndDepartmentId(departmentId, startDateTime, endDateTime, pageable);
-        } else {
-            notes = containerNoteService.findAllByDepartmentId(departmentId, pageable);
-        }
+//        } else {
+//            notes = containerNoteService.getNotesByDepartmentId(departmentId, pageable);
+//        }
         resp.setContentType("json");
         resp.setCharacterEncoding("UTF-8");
         gson = new GsonBuilder()
@@ -156,8 +173,7 @@ public class LoadDataController {
         req.setCharacterEncoding("UTF-8");
         int firstPointId = Integer.parseInt(req.getParameter("firstPointId"));
         int secondPointId = Integer.parseInt(req.getParameter("secondPointId"));
-        int probeId = Integer.parseInt(req.getParameter("probeId"));
-        TimeStandard standard = standardService.findByParameters(firstPointId, secondPointId, probeId);
+        TimeStandard standard = standardService.findByParameters(firstPointId, secondPointId);
         resp.setContentType("json");
         resp.setCharacterEncoding("UTF-8");
         resp.getWriter().print(this.gson.toJson(standard));
@@ -199,9 +215,19 @@ public class LoadDataController {
     @PostMapping("/user/load-data/user-rights")
     public void loadUserRights(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
-        String username = req.getParameter("username");
-        User user = userService.findByUsername(username);
-        List<UserRights> userRightsList = user.getUserRightsList();
+        User user = new User();
+        if(req.getParameter("username")!=null && req.getParameter("username").length()>0) {
+            String username = req.getParameter("username");
+            user = userService.findByUsername(username);
+        }
+        if(user==null && req.getParameter("userId").length()>0){
+            Long userId = Long.parseLong(req.getParameter("userId"));
+            user = userService.findUserById(userId);
+        }
+        List<UserRights> userRightsList = new ArrayList<>();
+        if(user!=null) {
+            userRightsList = user.getUserRightsList();
+        }
         resp.setContentType("json");
         resp.setCharacterEncoding("UTF-8");
         GsonBuilder builder = new GsonBuilder();
@@ -226,6 +252,7 @@ public class LoadDataController {
         resp.getWriter().flush();
         resp.getWriter().close();
     }
+
     @PostMapping("/user/load-data/container")
     public void loadContainer(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");

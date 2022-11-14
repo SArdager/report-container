@@ -14,6 +14,8 @@ public class AlarmGroup implements Serializable {
     @Column(name = "alarm_group_name")
     private String alarmGroupName;
 
+    @Column(name="department_id")
+    private int departmentId;
     @ManyToMany(targetEntity = User.class, cascade = CascadeType.ALL,
             fetch = FetchType.LAZY )
     @JoinTable(
@@ -27,6 +29,10 @@ public class AlarmGroup implements Serializable {
     public Integer getId() {return id;}
 
     public void setId(Integer id) {this.id = id;}
+
+    public int getDepartmentId() {return departmentId;}
+
+    public void setDepartmentId(int departmentId) {this.departmentId = departmentId;}
 
     public String getAlarmGroupName() {return alarmGroupName;}
 

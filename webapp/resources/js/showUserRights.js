@@ -7,7 +7,7 @@ window.addEventListener("load", function(){
         var rights_html = "";
         $('#userLogin').html(userName);
            $.ajax({
-                url: '/user/load-data/user-rights',
+                url: '../user/load-data/user-rights',
                 method: 'POST',
                 dataType: 'json',
                 data: {username: login},
@@ -20,6 +20,7 @@ window.addEventListener("load", function(){
                                 "</td><td>" + rights.rights + "</td></tr>";
                     });
                     rights_body.prepend(rights_html);
+                    $("thead[tabindex=0]").focus();
                 },
                 error:  function(response) {
                     $('#result_line').html("Для получения информации о правах пользователя кликните по ячейке с логином.");
