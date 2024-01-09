@@ -58,7 +58,7 @@
             <div class="title_row">
                 <span class="date_line">Вывести по объекту:</span>
                 <div class="checkbox_margin" id="chose_checkbox" style="display: none">
-                    <input type="checkbox" id="department_checkbox" style="margin: 0px;"/>
+                    <input type="checkbox" id="all_checkbox" style="margin: 0px;"/>
                     <span class="text_line">- все объекты</span>
                 </div>
                 <select id="select_branch" class="select_in_line" style="display: none">
@@ -80,7 +80,7 @@
                     <span class="text_line">часов</span>
                     <img src="../resources/images/export_excel_48.png" id="btn_export_delay" alt="">
                 </div>
-                <div id="delay_pages_title"></div>
+                <div id="delay_pages_title" style="margin-left: 20px;"></div>
             </div>
         </form>
         <div class = "scroll_table">

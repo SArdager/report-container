@@ -46,7 +46,7 @@ public class ParcelPointSerializer implements JsonSerializer<ParcelPoint> {
                 if(name.length()>0) {
                     ini = name.substring(0, 1) + ".";
                     int pos = name.indexOf(" ");
-                    if (pos > 0) {
+                    if (pos > 0 && name.length()>pos + 2) {
                         ini += name.substring(pos + 1, pos + 2) + ".";
                     }
                 }
@@ -60,7 +60,7 @@ public class ParcelPointSerializer implements JsonSerializer<ParcelPoint> {
                 if(outName.length()>0) {
                     outIni = outName.substring(0, 1) + ".";
                     int posOut = outName.indexOf(" ");
-                    if (posOut > 0) {
+                    if (posOut > 0 && outName.length()>posOut + 2) {
                         outIni += outName.substring(posOut + 1, posOut + 2) + ".";
                     }
                 }

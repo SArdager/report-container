@@ -91,8 +91,8 @@ $(document).ready(function(){
 
     $('#btn_del_company').on('click', function(){
         var companyName = $('#select_company option:selected').text();
-        var x = confirm("ВНИМАНИЕ!!! \nИз базы данных будет удалено предприятие `" + companyName + "` с соответствующими филиалами и объектами. \n" +
-                          "ЭТА ОПЕРАЦИЯ НЕ ВОССТАНОВИМА!!! \n\nПродолжить операцию удаления?");
+        var x = confirm("ВНИМАНИЕ!!! <br>Из базы данных будет удалено предприятие `" + companyName + "` с соответствующими филиалами и объектами. \n" +
+                          "ЭТА ОПЕРАЦИЯ НЕ ВОССТАНОВИМА!!! <br><br>Продолжить операцию удаления?");
         if(x){
             if($('#select_company').val()>1){
                 $('#btn_del_company').css("display", "none");
@@ -120,8 +120,8 @@ $(document).ready(function(){
 
     $('#btn_del_branch').on('click', function(){
         var branchName = $('#select_branch option:selected').text();
-        var x = confirm("ВНИМАНИЕ!!!\nИз базы данных будет удален филиал `" + branchName + "` с соответствующими ему объектами.\n" +
-                          "ЭТА ОПЕРАЦИЯ НЕ ВОССТАНОВИМА!!!\n\nПродолжить операцию удаления?");
+        var x = confirm("ВНИМАНИЕ!!!<br>Из базы данных будет удален филиал `" + branchName + "` с соответствующими ему объектами.\n" +
+                          "ЭТА ОПЕРАЦИЯ НЕ ВОССТАНОВИМА!!!<br><br>Продолжить операцию удаления?");
         if(x){
             if($('#select_branch').val()>1){
                 $('#btn_del_branch').css("display", "none");
@@ -149,8 +149,8 @@ $(document).ready(function(){
 
     $('#btn_del_department').on('click', function(){
         var departmentName = $('#select_department option:selected').text();
-        var x = confirm("ВНИМАНИЕ!!! \nИз базы данных будет удален объект `" + departmentName + "`. \n" +
-                          "ЭТА ОПЕРАЦИЯ НЕ ВОССТАНОВИМА!!! \n\nПродолжить операцию удаления?");
+        var x = confirm("ВНИМАНИЕ!!! <br>Из базы данных будет удален объект `" + departmentName + "`. <br>" +
+                          "ЭТА ОПЕРАЦИЯ НЕ ВОССТАНОВИМА!!! <br><br>Продолжить операцию удаления?");
         if(x){
             if($('#select_department').val()>1){
                 $('#btn_del_department').css("display", "none");
@@ -197,6 +197,11 @@ $(document).ready(function(){
                     btn_del_branch.type = "hidden";
                     btn_department.type = "hidden";
                     btn_del_department.type = "hidden";
+                    if(branches[0].hasLabor){
+                        $('#isLabor').prop("checked", true);
+                    } else {
+                        $('#isLabor').prop("checked", false);
+                    }
                     $('#select_branch').append('<option value= -1>Создать новый филиал</option');
                     $.each(branches, function(key, branch){
                         $('#select_branch').append('<option value="' + branch.id + '">' + branch.branchName + '</option');
@@ -276,6 +281,37 @@ $(document).ready(function(){
             btn_department.type = "button";
             btn_del_department.type = "hidden";
             $('#departmentName').val("");
+        }
+    });
+
+    var btn_sql = document.getElementById("btn_sql");
+    var clickNumber = 1;
+    $('#request_db').on('click', function(){
+        clickNumber++;
+        if(clickNumber%2==0){
+            btn_sql.type = "button";
+       } else {
+            btn_sql.type = "hidden";
+        }
+    });
+
+    $('#btn_sql').on('click', function(){
+        if($('#select_branch').val()>0){
+            $.ajax({
+                url: '../admin/branch/sql',
+                method: 'POST',
+                dataType: 'text',
+                data: {branchId: $('#select_branch').val(), companyId: $('#select_new_company').val()},
+                success: function(message) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    $('#result_line').html(message);
+                    setTimeout(() => { document.location.href = '../admin/edit-company';}, 800);
+                },
+                error:  function(response) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                }
+            });
         }
     });
 

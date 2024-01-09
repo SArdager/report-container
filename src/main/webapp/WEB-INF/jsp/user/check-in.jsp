@@ -40,7 +40,7 @@
         <p>
             <div class="title_row">
                 <div class="title_name">Наименование объекта:</div>
-                <div class="color_text"> ${department.departmentName},  ${department.branch.branchName}</div>
+                <div class="color_text" id="dep_name"> ${department.departmentName},  ${department.branch.branchName}</div>
             </div>
             <div class="title_row">
                 <div class="title_name">Права пользователя</div>
@@ -114,13 +114,15 @@
             $("h1").css("color", "blue");
             let name = "${user.userFirstname}";
                 document.getElementById("user_name").textContent = name.substring(0, 1) + ". ${user.userSurname}";
+            let depName = $('#dep_name').html();
             let rights = $('#userRights').html();
-
             if(rights.indexOf("ВНЕСЕНИЕ")>-1){
                 $('#checking_view').css("display", "block");
             } else if(rights.indexOf("ТЕРМОКОНТЕЙНЕР")>0){
                 $('#checking_view').css("display", "block");
             } else if(rights.indexOf("ЛАБОРАТОРИИ")>0){
+                $('#checking_view').css("display", "block");
+            } else if(depName.indexOf("Склад")>-1){
                 $('#checking_view').css("display", "block");
             } else {
                 $('#check_line').html("Права на регистрацию термоконтейнеров отсутствуют");

@@ -46,7 +46,7 @@
             </div>
             <div class="field">
                 <label>Пользователь</label>
-                <input type="text" id="user_name" size="40" placeholder="Первые буквы фамилии" required/>
+                <input type="text" id="find_name" size="40" placeholder="Первые буквы фамилии" required/>
             </div>
             <div class="field">
                 <label></label>
@@ -94,6 +94,9 @@
                 <input type="radio" id="righterId" name="rights" value="righter"/>
             </div>
             <div class="field">
+                <label>Создание и отслеживание посылок</label>
+                <input type="radio" id="creatorId" name="rights" value="creator"/>
+            </div>
             <br>
         </div>
         <p>

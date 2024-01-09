@@ -33,7 +33,7 @@
         <p>
             <div class="title_row">
                 <div class="title_name">Наименование объекта:</div>
-                <div class="color_text"> ${department.departmentName},  ${department.branch.branchName}</div>
+                <div class="color_text" id="dep_name"> ${department.departmentName},  ${department.branch.branchName}</div>
             </div>
             <div class="title_row">
                 <div class="title_name">Права пользователя</div>
@@ -43,9 +43,12 @@
         <h2>Выбор операции</h2>
         <h5><a href="user/change-department">Поменять объект</a></h5>
         <div id="container_field" style="display: block">
-            <h5><a href="user/check-between">Промежуточный объект регистрации</a></h5>
-            <h5><a href="user/check-in">Приемка термоконтейнера</a></h5>
-            <h5><a href="user/check-out">Отгрузка термоконтейнера</a></h5>
+            <span style="margin-right: 20px; font-size: 0.85em;">Конечный пункт маршрута - </span><input type="checkbox" id="department_checkbox"/>
+            <h5><a href="user/check-between" id="between_department" style="display: block">Промежуточный объект регистрации</a></h5>
+            <div id="check_department" style="display: none">
+                <h5><a href="user/check-in">Приемка термоконтейнера</a></h5>
+                <h5><a href="user/check-out">Отгрузка термоконтейнера</a></h5>
+            </div>
         </div>
         <br>
         <div id="parcel_field" style="display: none">
@@ -70,15 +73,21 @@
             $("h1").css("color", "blue");
             let name = "${user.userFirstname}";
             document.getElementById("user_name").textContent = name.substring(0, 1) + ". ${user.userSurname}";
+            let depName = $('#dep_name').html();
             let rights = $('#userRights').html();
             if(rights.indexOf("ПОСЫЛОК")>0){
                 $('#parcel_field').css("display", "block");
                 $('#journal_line').css("display", "none");
-                $('#container_field').css("display", "none");
+                if(depName.indexOf("Склад")<0){
+                    $('#container_field').css("display", "none");
+                } else {
+                    $('#check_department').css("display", "block");
+                    $('#between_department').css("display", "none");
+                }
             }
             if(rights.indexOf("УЧЕТ")>-1){
                 $('#account_line').css("display", "block");
-                $('#control_line').css("display", "block");
+                $('#control_line').css("display", "none");
                 $('#journal_line').css("display", "none");
                 $('#container_field').css("display", "none");
             }
@@ -98,6 +107,23 @@
                 $('#rights_line').css("display", "block");
                 $('#parcel_field').css("display", "block");
             }
+            $('#department_checkbox').on('click', function(){
+                if($('#department_checkbox').is(':checked')==true){
+                    $('#check_department').css("display", "block");
+                    $('#between_department').css("display", "none");
+                } else {
+                    $('#check_department').css("display", "none");
+                    $('#between_department').css("display", "block");
+                }
+            });
+            if(depName.indexOf("боратория")>0){
+                $('#department_checkbox').trigger("click");
+            }
+            if(depName.indexOf("Склад")>-1){
+                $('#department_checkbox').trigger("click");
+                $('#department_checkbox').css("display", "none");
+            }
+
        });
      </script>
 

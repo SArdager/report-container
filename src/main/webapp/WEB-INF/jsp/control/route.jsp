@@ -34,14 +34,10 @@
         <h3><div id="result_line"></div></h3>
         <table>
             <tr><td class="table_title">№ термоконтейнера</td>
-                <td><input id="container_number" style="width: 160px;"/>
+                <td><input type="number" maxlength="8" id="container_number" style="width: 160px;"/>
             </tr>
             <tr><td class="table_title"><span id="container_clean" class="cut_line">Очистить поле номера</span></td>
-                <td><select id="select_container" style="width: 160px;">
-                        <option value="0">Выберите из списка</option>
-                        <c:forEach var="container" items="${containers}">
-                            <option value=${container.id}>${container.containerNumber}</option>
-                        </c:forEach>
+                <td><select id="select_container" style="width: 160px; display: none;">
                     </select>
                 </td>
             </tr>
@@ -82,7 +78,7 @@
                 <span id="reload_route" class ="reload_line">Показать</span>
                 <img src="../resources/images/export_excel_48.png" id="btn_export_route" align = "top" alt="">
             </div>
-            <div id="route_pages_title" ></div>
+            <div id="route_pages_title" style="margin-left: 20px;"></div>
         </div>
         <div class = "scroll_table">
            <table>

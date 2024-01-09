@@ -14,7 +14,7 @@ $(document).ready(function(){
         let textValue = $('#alarm_user_name').val().trim();
         if(textValue.length>2 && textValue.length<6){
             $('#user_id').val(0);
-            $('#alarm_user_name').readOnly = true;
+            $('#alarm_user_name').attr("readonly", true);
             $.ajax({
                 url : 'search-user',
                 method: 'POST',
@@ -29,15 +29,15 @@ $(document).ready(function(){
                             user.userSurname + ' ' + user.userFirstname +
                             '; ' + user.position + '</option>');
                     });
-                    $('#alarm_user_name').readOnly = false;
+                    $('#alarm_user_name').attr("readonly", false);
                 },
                 error:  function(response) {
-                    $('#alarm_user_name').readOnly = false;
+                    $('#alarm_user_name').attr("readonly", false);
                 }
             });
         } else {
             document.getElementById("show_select").style.display = "none";
-            $('#alarm_user_name').readOnly = false;
+            $('#alarm_user_name').attr("readonly", false);
         }
     };
 
@@ -196,7 +196,7 @@ $(document).ready(function(){
                 });
             } else {
                 $('#result_line').html("Выберите пользователя кликом из предлагаемого списка." +
-                    "\nПри отсутствии в списке - добавьте нового пользователя");
+                    "<br>При отсутствии в списке - добавьте нового пользователя");
             }
         } else {
             $('#result_line').html("Выберите группу оповещения");
@@ -224,7 +224,7 @@ $(document).ready(function(){
                 });
             } else {
                 $('#result_line').html("Выберите пользователя кликом из предлагаемого списка." +
-                    "\nПри отсутствии в списке - добавьте нового пользователя");
+                    "<br>При отсутствии в списке - добавьте нового пользователя");
             }
         } else {
             $('#result_line').html("Выберите группу оповещения");

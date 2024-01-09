@@ -53,7 +53,7 @@
                 </select>
             </div>
             <div class="field">
-                <label><b>Филиал доставки</b></label>
+                <label><b>Филиал получения</b></label>
                 <select id="select_second_branch" >
                     <c:forEach var="branch" items="${branches}">
                         <option value=${branch.id}>${branch.branchName}</option>
@@ -89,8 +89,9 @@
             if($('#role').val()!="ADMIN"){
                 $('#select_first_branch').empty();
                 $('#select_first_branch').append('<option value="' + $('#userBranchId').val() + '">' + $('#userBranchName').val() + '</option>');
+            } else {
+                $('#select_first_branch').val($('#userBranchId').val());
             }
-
             $.ajax({
                 url: '../user/change-department/select-branch',
                 method: 'POST',
@@ -106,6 +107,7 @@
                     $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
                 }
             });
+            $('#select_second_branch').val($('#userBranchId').val());
             $('#select_second_branch').trigger("change");
             let resultLineValue;
             let clickNumber = 0;

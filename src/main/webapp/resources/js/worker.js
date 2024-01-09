@@ -4,7 +4,7 @@ $(document).ready(function(){
 
     $('#btn_outcome').on('click', function(){
         if($('#select_department').val() == $('#departmentId').val()){
-            var x = confirm("Проверьте правильность выбора получателя. \nПодтвердите направление термоконтейнера по круговому маршруту " +
+            var x = confirm("Проверьте правильность выбора получателя. <br>Подтвердите направление термоконтейнера по круговому маршруту " +
             "или отмените отгрузку термоконтейнера (посылки)");
             if(x){
                 registerOut();
@@ -21,116 +21,121 @@ $(document).ready(function(){
         $('#time_outcome').html("");
         $('#status_outcome').html("");
         if(number_outcome.length > 0){
-            if(validNumber.test($('#payment').val())){
-                if(validNumber.test(firstLetter)){
-                    $('#btn_outcome').css("display", "none");
-                    $.ajax({
-                        url: 'check-out/send',
-                        method: 'POST',
-                        dataType: 'text',
-                        data: {toId: $('#select_department').val(), containerNumber: $('#number_outcome').val(), text: $('#textarea_out').val(),
-                            payment: $('#payment').val(), amount: $('#amount').val(), thermometer: $('#thermometer').val()},
-                        success: function(message) {
-                            if(message.indexOf("уже оформлен")>0){
-                                let x = confirm(message);
-                                if(x){
-                                    $.ajax({
-                                        url: 'check-out/again-send',
-                                        method: 'POST',
-                                        dataType: 'text',
-                                        data: {toId: $('#select_department').val(), containerNumber: $('#number_outcome').val(), text: $('#textarea_out').val(),
-                                            payment: $('#payment').val(), amount: $('#amount').val(), thermometer: $('#thermometer').val()},
-                                        success: function(message) {
-                                            $('#number_outcome').val("");
-                                            $('#container_number').val("");
-                                            $('#costs_part').val("0");
-                                            $('#payment').val("0");
-                                            $('#amount').val("1");
-                                            $('#number_outcome').focus();
-                                            $('#time_outcome').html(dateValue);
-                                            $('#status_outcome').html("Переоформлена отгрузка термоконтейнера");
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                            $('#result_line').html("Отгрузка термоконтейнера переоформлена на другой объект");
-                                            $('#btn_outcome').css("display", "block");
-                                        },
-                                        error:  function(response) {
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                            $('#result_line').html("Ошибка регистрации отгрузки термоконтейнера. Перегрузите страницу.");
-                                            $('#btn_outcome').css("display", "block");
-                                        }
-                                    });
+            if(validNumber.test($('#amount').val())){
+                if(validNumber.test($('#payment').val())){
+                    if(validNumber.test(firstLetter)){
+                        $('#btn_outcome').css("display", "none");
+                        $.ajax({
+                            url: 'check-out/send',
+                            method: 'POST',
+                            dataType: 'text',
+                            data: {toId: $('#select_department').val(), containerNumber: $('#number_outcome').val(), text: $('#textarea_out').val(),
+                                payment: $('#payment').val(), amount: $('#amount').val(), thermometer: $('#thermometer').val(), paidEnd: $('#paid').is(":checked")},
+                            success: function(message) {
+                                if(message.indexOf("уже оформлен")>0){
+                                    let x = confirm(message);
+                                    if(x){
+                                        $.ajax({
+                                            url: 'check-out/again-send',
+                                            method: 'POST',
+                                            dataType: 'text',
+                                            data: {toId: $('#select_department').val(), containerNumber: $('#number_outcome').val(), text: $('#textarea_out').val(),
+                                                payment: $('#payment').val(), amount: $('#amount').val(), thermometer: $('#thermometer').val(), paidEnd: $('#paid').is(":checked")},
+                                            success: function(message) {
+                                                $('#number_outcome').val("");
+                                                $('#container_number').val("");
+                                                $('#costs_part').val("0");
+                                                $('#payment').val("0");
+                                                $('#amount').val("1");
+                                                $('#number_outcome').focus();
+                                                $('#time_outcome').html(dateValue);
+                                                $('#status_outcome').html("Переоформлена отгрузка термоконтейнера");
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                $('#result_line').html("Отгрузка термоконтейнера переоформлена на другой объект");
+                                                $('#btn_outcome').css("display", "block");
+                                            },
+                                            error:  function(response) {
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                $('#result_line').html("Ошибка регистрации отгрузки термоконтейнера. Перегрузите страницу.");
+                                                $('#btn_outcome').css("display", "block");
+                                            }
+                                        });
+                                    }
+                                } else if(message.indexOf("пользователь")>0){
+                                    $('#number_outcome').val("");
+                                   $('#payment').val("0");
+                                                         $('#container_number').val("");
+                                    $('#costs_part').val("0");
+                                   $('#amount').val("1");
+                                    $('#number_outcome').focus();
+                                    $('#status_outcome').html("Нельзя оформить отправку термоконтейнера");
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    $('#result_line').html(message);
+                                } else {
+                                    $('#number_outcome').val("");
+                                    $('#container_number').val("");
+                                    $('#costs_part').val("0");
+                                    $('#payment').val("0");
+                                    $('#amount').val("1");
+                                    $('#number_outcome').focus();
+                                    $('#time_outcome').html(dateValue);
+                                    $('#status_outcome').html("Регистрация отправки термоконтейнера");
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    $('#result_line').html(message);
                                 }
-                            } else if(message.indexOf("пользователь")>0){
-                                $('#number_outcome').val("");
-                                $('#container_number').val("");
-                                $('#costs_part').val("0");
-                                $('#payment').val("0");
-                                $('#amount').val("1");
-                                $('#number_outcome').focus();
-                                $('#status_outcome').html("Нельзя оформить отправку термоконтейнера");
+                                $('#btn_outcome').css("display", "block");
+                            },
+                            error:  function(response) {
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                                $('#result_line').html(message);
-                            } else {
-                                $('#number_outcome').val("");
-                                $('#container_number').val("");
-                                $('#costs_part').val("0");
-                                $('#payment').val("0");
-                                $('#amount').val("1");
-                                $('#number_outcome').focus();
-                                $('#time_outcome').html(dateValue);
-                                $('#status_outcome').html("Регистрация отправки термоконтейнера");
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                                $('#result_line').html(message);
+                                $('#result_line').html("Ошибка регистрации отгрузки. Перегрузите страницу.");
+                                $('#btn_outcome').css("display", "block");
                             }
-                            $('#btn_outcome').css("display", "block");
-                        },
-                        error:  function(response) {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                            $('#result_line').html("Ошибка регистрации отгрузки. Перегрузите страницу.");
-                            $('#btn_outcome').css("display", "block");
-                        }
-                    });
-                    document.getElementById("payment_tr").style.display = "table-row";
-                    document.getElementById("btn_add_parcel").style.display = "none";
-                    document.getElementById("costs_part_tr").style.display = "none";
-                    document.getElementById("container_tr").style.display = "none";
-                    document.getElementById("amount_tr").style.display = "table-row";
+                        });
+                        document.getElementById("payment_tr").style.display = "table-row";
+                        document.getElementById("btn_add_parcel").style.display = "none";
+                        document.getElementById("costs_part_tr").style.display = "none";
+                        document.getElementById("container_tr").style.display = "none";
+                        document.getElementById("amount_tr").style.display = "table-row";
+                    } else {
+                        $('#btn_outcome').css("display", "none");
+                        $.ajax({
+                            url: 'check-out/send-parcel',
+                            method: 'POST',
+                            dataType: 'text',
+                            data: {toId: $('#select_department').val(), parcelNumber: $('#number_outcome').val(),
+                                text: $('#textarea_out').val(), payment: $('#payment').val()},
+                            success: function(message) {
+                                $('#number_outcome').val("");
+                                $('#container_number').val("");
+                                $('#costs_part').val("0");
+                                $('#payment').val("0");
+                                $('#amount').val("1");
+                                $('#number_outcome').focus();
+                                $('#status_outcome').html("Отгрузка посылки оформлена.");
+                                $('#reload_output').trigger("click");
+                                $('#btn_outcome').css("display", "block");
+                                $('#payment_tr').css("display", "table-row");
+                                $('#btn_add_parcel').css("display", "none");
+                                $('#costs_part_tr').css("display", "none");
+                                $('#container_tr').css("display", "none");
+                                $('#amount_tr').css("display", "table-row");
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                $('#result_line').html(message);
+                            },
+                            error:  function(response) {
+                                $('#btn_outcome').css("display", "block");
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                $('#result_line').html("Ошибка регистрации отгрузки. Перегрузите страницу.");
+                            }
+                        });
+                    }
                 } else {
-                    $('#btn_outcome').css("display", "none");
-                    $.ajax({
-                        url: 'check-out/send-parcel',
-                        method: 'POST',
-                        dataType: 'text',
-                        data: {toId: $('#select_department').val(), parcelNumber: $('#number_outcome').val(),
-                            text: $('#textarea_out').val(), payment: $('#payment').val()},
-                        success: function(message) {
-                            $('#number_outcome').val("");
-                            $('#container_number').val("");
-                            $('#costs_part').val("0");
-                            $('#payment').val("0");
-                            $('#amount').val("1");
-                            $('#number_outcome').focus();
-                            $('#status_outcome').html("Отгрузка посылки оформлена.");
-                            $('#reload_output').trigger("click");
-                            $('#btn_outcome').css("display", "block");
-                            $('#payment_tr').css("display", "table-row");
-                            $('#btn_add_parcel').css("display", "none");
-                            $('#costs_part_tr').css("display", "none");
-                            $('#container_tr').css("display", "none");
-                            $('#amount_tr').css("display", "table-row");
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                            $('#result_line').html(message);
-                        },
-                        error:  function(response) {
-                            $('#btn_outcome').css("display", "block");
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                            $('#result_line').html("Ошибка регистрации отгрузки. Перегрузите страницу.");
-                        }
-                    });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    $('#result_line').html("В строке оплаты отгрузки должна указана стоимость в числах (при отсутствии оплаты - ноль)");
                 }
             } else {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                $('#result_line').html("В строке оплаты отгрузки должна указана стоимость в числах (при отсутствии оплаты - ноль)");
+                $('#result_line').html("В строке количества должно быть указано число");
             }
         } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -153,31 +158,7 @@ $(document).ready(function(){
                     dataType: 'text',
                     data: {containerNumber: $('#number_income').val(), text: $('#textarea_in').val()},
                     success: function(message) {
-                        if(message.indexOf("ЖЕЛАЕТЕ")>0){
-                            let x = confirm(message);
-                            if(x){
-                                $.ajax({
-                                    url: '../user/check-in/check-route-off',
-                                    method: 'POST',
-                                    dataType: 'text',
-                                    data: {containerNumber: $('#number_income').val(), text: $('#textarea_in').val()},
-                                    success: function(message) {
-                                        $('#btn_income').css("display", "block");
-                                        $('#number_income').val("");
-                                        $('#textarea_in').val("");
-                                        $('#status_income').html("Зарегистрировано прибытие");
-                                        $('#time_income').html(dateValue);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        $('#result_line').html(message);
-                                    },
-                                    error:  function(response) {
-                                        $('#btn_income').css("display", "block");
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        $('#result_line').html("Ошибка регистрации термоконтейнера. Перегрузите страницу.");
-                                    }
-                                });
-                            }
-                        } else if(message.indexOf("внесено")>0){
+                        if(message.indexOf("внесен")>0){
                             $('#time_income').html(dateValue);
                             $('#status_income').html(message.substring(41));
                             $('#number_income').val("");
@@ -210,8 +191,8 @@ $(document).ready(function(){
                             $('#status_income').html("Прибытие посылки зарегистрировано");
                             $('#reload_input').trigger("click");
                         }
-                         window.scrollTo({ top: 0, behavior: 'smooth' });
-                         $('#result_line').html(message);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        $('#result_line').html(message);
                    },
                     error:  function(response) {
                         $('#btn_income').css("display", "block");
@@ -221,6 +202,55 @@ $(document).ready(function(){
                 });
             }
         }
+    });
+
+    $('#reload_input').on('click', function(){
+        $('#parcels_table').css("display", "none");
+        $.ajax({
+            url: '../user/load-data/container-notes',
+            method: 'POST',
+            dataType: 'json',
+            success: function(notes) {
+                let income_table_body = $('#income_table_body');
+                income_table_body.html('');
+                if(notes!=null && notes.length>0){
+                    let notes_html = "";
+                    $.each(notes, function(key, note){
+                        notes_html += "<tr><td>" + note.id + "</td><td>" + note.waitTime + "</td><td>" +
+                               note.containerNumber  + "</td><td>" + note.outDepartment + "</td></tr>";
+                    });
+                    income_table_body.prepend(notes_html);
+                } else {
+                    income_table_body.prepend("<tr><td colspan='4'>Нет отгруженных термоконтейнеров</td></tr>");
+                }
+                $.ajax({
+                    url: '../user/load-data/parcels',
+                    method: 'POST',
+                    dataType: 'json',
+                    success: function(parcels) {
+                        if(parcels!=null && parcels.length>0){
+                            $('#parcels_table').css("display", "block");
+                            let parcels_html = "";
+                            let parcels_table_body = $('#parcels_table_body');
+                            parcels_table_body.html('');
+                            $.each(parcels, function(key, parcel){
+                                parcels_html += "<tr><td>" + parcel.parcelNumber + "</td><td>" + parcel.destinationName + "</td><td>" +
+                                       parcel.parentNumber  + "</td><td>" + parcel.parcelType + "</td><td>" + parcel.dimensions + "</td></tr>";
+                            });
+                            parcels_table_body.prepend(parcels_html);
+                        }
+                    },
+                    error:  function(response) {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                    }
+                });
+            },
+            error:  function(response) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+            }
+        });
     });
 
     $('#btn_check').on('click', function(){
@@ -302,55 +332,6 @@ $(document).ready(function(){
         }
     });
 
-    $('#reload_input').on('click', function(){
-        $('#parcels_table').css("display", "none");
-        $.ajax({
-            url: '../user/load-data/container-notes',
-            method: 'POST',
-            dataType: 'json',
-            success: function(notes) {
-                let income_table_body = $('#income_table_body');
-                income_table_body.html('');
-                if(notes!=null && notes.length>0){
-                    let notes_html = "";
-                    $.each(notes, function(key, note){
-                        notes_html += "<tr><td>" + note.id + "</td><td>" + note.waitTime + "</td><td>" +
-                               note.containerNumber  + "</td><td>" + note.outDepartment + "</td></tr>";
-                    });
-                    income_table_body.prepend(notes_html);
-                } else {
-                    income_table_body.prepend("<tr><td colspan='4'>Нет отгруженных термоконтейнеров</td></tr>");
-                }
-                $.ajax({
-                    url: '../user/load-data/parcels',
-                    method: 'POST',
-                    dataType: 'json',
-                    success: function(parcels) {
-                        if(parcels!=null && parcels.length>0){
-                            $('#parcels_table').css("display", "block");
-                            let parcels_html = "";
-                            let parcels_table_body = $('#parcels_table_body');
-                            parcels_table_body.html('');
-                            $.each(parcels, function(key, parcel){
-                                parcels_html += "<tr><td>" + parcel.parcelNumber + "</td><td>" + parcel.destinationName + "</td><td>" +
-                                       parcel.parentNumber  + "</td><td>" + parcel.parcelType + "</td><td>" + parcel.dimensions + "</td></tr>";
-                            });
-                            parcels_table_body.prepend(parcels_html);
-                        }
-                    },
-                    error:  function(response) {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
-                    }
-                });
-            },
-            error:  function(response) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
-            }
-        });
-    });
-
     $('#reload_output').on('click', function(){
         $('#parcels_field').css("display", "block");
         $('#show_parcels').html("Скрыть поле просмотра посылок");
@@ -388,7 +369,7 @@ $(document).ready(function(){
                 if($('#select_change_department').val() == $('#toDepartmentId').val()){
                     saveChanges(true);
                } else {
-                    var x = confirm("Вы изменяете ОБЪЕКТ получателя термоконтейнера!!\n Продолжить внесение изменений?");
+                    var x = confirm("Вы изменяете ОБЪЕКТ получателя термоконтейнера!!<br>Продолжить внесение изменений?");
                     if(x){
                         saveChanges(true);
                     }
@@ -446,8 +427,8 @@ $(document).ready(function(){
         });
     }
 
-    $('#department_checkbox').on('click', function(){
-        if($('#department_checkbox').is(':checked')==true){
+    $('#all_checkbox').on('click', function(){
+        if($('#all_checkbox').is(':checked')==true){
             $('#select_branch').val(0);
             $('#select_department').empty();
         }
@@ -455,7 +436,7 @@ $(document).ready(function(){
 
     $('#select_branch').on('click', function(){
         if($('#select_branch').val()>0){
-            $('#department_checkbox').prop('checked', false);
+            $('#all_checkbox').prop('checked', false);
         }
     });
 
@@ -537,10 +518,12 @@ $(document).ready(function(){
                 document.getElementById("container_tr").style.display = "none";
                 document.getElementById("thermometer_tr").style.display = "table-row";
                 document.getElementById("amount_tr").style.display = "table-row";
+                document.getElementById("paid_tr").style.display = "table-row";
             } else {
                 document.getElementById("container_tr").style.display = "table-row";
                 document.getElementById("thermometer_tr").style.display = "none";
                 document.getElementById("amount_tr").style.display = "none";
+                document.getElementById("paid_tr").style.display = "none";
             }
         } else {
             document.getElementById("container_tr").style.display = "none";

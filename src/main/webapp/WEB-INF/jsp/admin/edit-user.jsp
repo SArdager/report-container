@@ -64,9 +64,13 @@
             </div>
             <div class="field">
                 <label>Разблокировать пользователя</label>
-                <input type="checkbox" id="isEnabled" checked/>
+                <input type="checkbox" id="isEnabled" checked ="checked" />
             </div>
             <input type="hidden" id="is_enabled" value="true" />
+            <div class="field">
+                <label>Послать адрес сервера с новым паролем</label>
+                <input type="checkbox" id="is_link_send" />
+            </div>
         </div>
         <p>
         <br>

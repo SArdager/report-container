@@ -28,11 +28,15 @@
         <div class="main_block">
            <div class="field">
                <label>Поиск по фамилии</label>
-               <input type="text" id="search_surname" size="40" placeholder="Любые буквы фамилии" required/>
+               <input type="text" id="search_surname" size="40" placeholder="Любые буквы фамилии" />
            </div>
            <div class="field">
                <label>Поиск по имени</label>
-               <input type="text" id="search_firstname" size="40" placeholder="Любые буквы имени" required/>
+               <input type="text" id="search_firstname" size="40" placeholder="Любые буквы имени" />
+           </div>
+           <div class="field">
+               <label>Поиск по логину</label>
+               <input type="text" id="search_login" size="40" placeholder="Любые буквы логина" />
            </div>
            <div class="field">
                <label>Поиск по филиалу</label>
@@ -41,6 +45,12 @@
                     <c:forEach var="branch" items="${branches}">
                         <option value=${branch.id}>${branch.branchName}</option>
                     </c:forEach>
+                </select>
+           </div>
+           <div class="field">
+               <label>Поиск по объекту</label>
+               <select id="select_department">
+                    <option value="1">По всем объектам</option>
                 </select>
            </div>
         <br>

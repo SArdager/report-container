@@ -4,14 +4,11 @@ $(document).ready(function(){
         let userId = $('#select_user').val();
         if(userId>0){
             let userFullName = $('#select_user option:selected').text();
-            let posName = userFullName.indexOf(";");
-            let posDep = userFullName.indexOf("-");
-            let posRole = userFullName.indexOf("*");
-            let userName = userFullName.substring(0, posName);
-            let login = userFullName.substring(posName+1, posDep).trim();
-            let departmentIdString = userFullName.substring(posDep+1, posRole);
-            let role = userFullName.substring(posRole+1);
-            let departmentId = Number(departmentIdString.trim());
+            let names = userFullName.split("; ");
+            let userName = names[0];
+            let login = names[1];
+            let departmentId = names[2];
+            let role = names[3];
             $('#user_id').val(userId);
             $('#user_name').val(userName);
             $('#username').val(login);
@@ -80,7 +77,7 @@ $(document).ready(function(){
         if(textValue.length>2 && textValue.length<6){
             $('#user_id').val(0);
             $('#username').val("");
-            $('#user_name').readOnly = true;
+            $('#user_name').attr("readonly", true);
             $.ajax({
                 url : 'search-user',
                 method: 'POST',
@@ -93,47 +90,73 @@ $(document).ready(function(){
                     $.each(users, function(key, user){
                         $('#select_user').append('<option value="' + user.id + '">' +
                             user.userSurname + ' ' + user.userFirstname + '; ' +
-                            user.username + ' - ' + user.departmentId +
-                            '*' + user.role +'</option>');
+                            user.username + '; ' + user.departmentId +
+                            '; ' + user.role + '</option>');
                     });
-                    $('#user_name').readOnly = false;
+                    $('#user_name').attr("readonly", false);
                 },
                 error:  function(response) {
-                    $('#user_name').readOnly = false;
+                    $('#user_name').attr("readonly", false);
                 }
             });
         } else {
             document.getElementById("show_select").style.display = "none";
-            $('#user_name').readOnly = false;
+            $('#user_name').attr("readonly", false);
         }
     };
 
     $('#btn_rights').on('click', function(){
-        let role;
-        if($('#roleId').is(':checked')==false){
-            role = "USER";
-        } else {
-            role = "ADMIN";
-        }
-        let user_rights = $('input[type="radio"][name="rights"]:checked').val();
         if($('#user_id').val()>0 || $('#username').val().length>1){
-            $('#btn_rights').css("display", "none");
-            $.ajax({
-                url: 'edit-rights/rights',
-                method: 'POST',
-                dataType: 'text',
-                data: {id: $('#user_id').val(), username: $('#username').val(), role: role,
-                    departmentId: $('#select_department').val(), rights: user_rights },
-                success: function(message) {
-                    $('#btn_rights').css("display", "block");
-                    $('#result_line').html(message);
-                },
-                error:  function(response) {
-                    $('#btn_rights').css("display", "block");
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+            if($('#group_change_checkbox').is(':checked')){
+                let checkedId = [];
+                $('input:checkbox:checked').each(function(){
+                    if(this.name == "department_boxes"){
+                        checkedId.push(this.id.substring(4));
+                    }
+                });
+                let rightsString = checkedId.join(' ');
+                $.ajax({
+                    url: 'edit-rights/add-group-rights',
+                    method: 'POST',
+                    dataType: 'text',
+                    data: {id: $('#user_id').val(), rights: rightsString},
+                    success: function(message) {
+                        $('#btn_rights').css("display", "block");
+                        $('#result_line').html(message);
+                    },
+                    error:  function(response) {
+                        $('#btn_rights').css("display", "block");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                    }
+                });
+            } else {
+                let role;
+                if($('#roleId').is(':checked')==false){
+                    role = "USER";
+                } else {
+                    role = "ADMIN";
                 }
-            });
+                let user_rights = $('input[type="radio"][name="rights"]:checked').val();
+                $('#btn_rights').css("display", "none");
+                $.ajax({
+                    url: 'edit-rights/rights',
+                    method: 'POST',
+                    dataType: 'text',
+                    data: {id: $('#user_id').val(), username: $('#username').val(), role: role,
+                        departmentId: $('#select_department').val(), rights: user_rights },
+                    success: function(message) {
+                        $('#btn_rights').css("display", "block");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        $('#result_line').html(message);
+                    },
+                    error:  function(response) {
+                        $('#btn_rights').css("display", "block");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                    }
+                });
+            }
         } else {
             $('#result_line').html("Выберите пользователя из списка");
         }
@@ -155,10 +178,10 @@ $(document).ready(function(){
                         rights_body.html('');
                         $('#userLogin').val($('#username').val());
                         $.each(userRightsList, function(key, userRights){
-                             rights_html += "<tr><td>" + userRights.departmentName + ", " + userRights.branchName +
+                            rights_html += "<tr><td>" + userRights.departmentName + ", " + userRights.branchName +
                                      "</td><td>" + userRights.rights + "</td></tr>";
                             if(userRights.departmentId == currentDepartmentId){
-                                userRole = userRights.rights;
+                                userRole = userRights.rightsShort;
                             }
                         });
                         rights_body.prepend(rights_html);
@@ -264,5 +287,27 @@ window.addEventListener("load", function(){
          }
      });
 
+    $('#group_change_checkbox').on('click', function(){
+        if($('#group_change_checkbox').is(':checked')==true){
+            $('#group_change_field').css("display", "block");
+            $('#departments_table_body').html("");
+            $.ajax({
+                url: '../user/load-departments',
+                method: 'POST',
+                dataType: 'html',
+                data: {userId: $('#user_id').val(), branchId: $('#select_branch').val()},
+                success: function(message) {
+                    let departments_table_body = $('#departments_table_body');
+                    departments_table_body.prepend(message);
+                },
+                error:  function(response) {
+                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                   $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                }
+            });
+        } else {
+            $('#group_change_field').css("display", "none");
+        }
+    });
 
 });

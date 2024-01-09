@@ -83,12 +83,10 @@
             let name = "${user.userFirstname}";
             document.getElementById("user_name").textContent = name.substring(0, 1) + ". ${user.userSurname}";
             var rights = $('#userRights').html();
-            var checking_view = document.getElementById("checking_view");
-
-            if(rights.indexOf("ВНЕСЕНИЕ")>-1){
-                checking_view.style.display = "block";
+            if(rights.indexOf("ВНЕСЕНИЕ")>-1 || rights.indexOf("ЛАБОРАТОРИИ")>0){
+                $('#checking_view').css("display", "block");
             } else {
-                $('#check_line').html("Права на регистрацию термоконтейнеров отсутствуют");
+                $('#check_line').html("Права на регистрацию термоконтейнеров в промежуточном объекте отсутствуют");
             }
             document.getElementById("number_check").focus();
             var resultLineValue;

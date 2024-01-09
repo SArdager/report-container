@@ -358,6 +358,17 @@ table th{
     width: 10%;
     text-align: center;
 }
+.group_name_cell {
+    width: 300dp;
+}
+.group_parameter {
+    width: 300dp;
+    text-align: left;
+}
+.group_box_cell {
+    width: 20dp;
+    text-align: center;
+}
 .choice_table td{
     font-size: 0.8em;
     padding: 3px;

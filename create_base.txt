@@ -282,6 +282,7 @@ CREATE TABLE IF NOT EXISTS public.container_notes
     user_out_id bigint,
     department_to_id integer,
     user_to_id bigint,
+    paid_end boolean DEFAULT false,
     amount integer DEFAULT 1,
     thermometer character varying(50) COLLATE pg_catalog."default",
     CONSTRAINT container_notes_pkey PRIMARY KEY (note_id),

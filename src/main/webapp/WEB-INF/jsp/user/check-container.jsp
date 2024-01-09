@@ -61,6 +61,10 @@
                 <td id="clean_input_new" class="cut_line">Очистить поле ввода<br></td>
             </tr>
             <tr>
+                <td class="table_title" id="many_new_numbers" style="text-decoration: underline;">Диапазон номеров</td>
+                <td><input type="hidden" id="next_new_number" maxlength="8"/></td>
+            </tr>
+            <tr>
                 <td class="table_title">Выбрать вид</td>
                 <td><select id="select_value">
                       <c:forEach var="containerValue" items="${containerValues}">
@@ -82,12 +86,15 @@
                 <td colspan='2' class="cut_line" id="clean_send">Скрыть поле передачи термоконтейнеров</td>
             </tr>
             <tr>
-                <td class="table_title">Сканирование номера</td>
-                <td><input type="text" id="send_number" maxlength="13"/></td>
+                <td class="table_title">Номер термоконтейнера</td>
+                <td><input type="text" id="send_number" maxlength="8"/></td>
             </tr>
             <tr>
                 <td class="table_title"></td>
                 <td id="clean_input_send" class="cut_line">Очистить поле ввода<br></td>
+            </tr>
+                <td class="table_title" id="many_send_numbers" style="text-decoration: underline;">Диапазон номеров</td>
+                <td><input type="hidden" id="next_send_number" maxlength="8"/></td>
             </tr>
             <tr>
                 <td class="table_title">Получатель</td>
@@ -152,82 +159,163 @@
             </tr>
             <tr>
                 <td class="table_title">Номер термоконтейнера</td>
-                <td><input type="text" id="write_off_number" maxlength="13"/>
+                <td><input type="text" id="write_off_number" maxlength="8"/>
                 </td>
             </tr>
             <tr>
                 <td class="table_title"></td>
                 <td id="clean_input_write_off" class="cut_line">Очистить поле ввода<br></td>
             </tr>
-            <tr>
+            <tr >
                 <td class="table_title"></td>
-                <td><br><button id="btn_write_off" >Списать</button><br></td>
+                <td id="td_check" style="display: table-row"><br><button id="btn_check" >Проверить</button><br></td>
+                <td id="td_check_in" style="display: none"><br><button id="btn_check_in" >Принять</button><br></td>
+                <td id="td_write_off" style="display: none"><br><button id="btn_write_off" >Списать</button><br></td>
             </tr>
         </table>
         </p>
         <p>
         <h4 id="find_container">Поиск термоконтейнера по номеру</h4>
-        <table id="find_area" style="display: none">
-            <tr>
-                <td colspan='2' class="cut_line" id="clean_find">Скрыть поле поиска термоконтейнера</td>
-            </tr>
-            <tr>
-                <td class="table_title">Номер термоконтейнера</td>
-                <td><input type="text" id="find_number" maxlength="12"/>
-                </td>
-            </tr>
-            <tr>
-                <td class="table_title"></td>
-                <td id="clean_input_find" class="cut_line">Очистить поле ввода<br></td>
-            </tr>
-            <tr>
-                <td class="table_title"></td>
-                <td><br><button id="btn_find" >Найти</button><br></td>
-            </tr>
-            <tr>
-                <td colspan='2' id="find_table_body"></td>
-            </tr>
-        </table>
-        </p>
-        <p>
-        <h4 id="search_containers">Наличие термоконтейнеров по филиалам</h4>
-        <table id="search_area" style="display: none">
-            <tr>
-                <td colspan='2' class="cut_line" id="clean_search">Скрыть поле поиска термоконтейнера</td>
-            </tr>
-            <tr>
-                <td class="table_title">Выбор филиала</td>
-                <td><select id="select_branch_search">
-                       <option value="1">По всем филиалам</option>
-                       <c:forEach var="branch" items="${branches}">
-                           <option value=${branch.id}>${branch.branchName}</option>
-                       </c:forEach>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td class="table_title"></td>
-                <td><br><button id="btn_search" >Показать</button><br></td>
-            </tr>
-            <tr>
-                <td colspan='2' id="search_table_body"></td>
-            </tr>
-        </table>
-        <div id="table_area" style="display: none">
-            <br>
-            <table border ="1">
-                <caption><strong>Информация по термоконтейнерам</strong></caption>
-                <thead>
-                    <th>Номер термоконтейнера</th>
-                    <th>Филиал нахождения</th>
-                    <th>Объект нахождения</th>
-                    <th>Дата прибытия</th>
-                </thead>
-                <tbody class="table_body" id="container_table_body">
-                </tbody>
+        <div id="find_area" style="display: none">
+            <table>
+                <tr>
+                    <td colspan='2' class="cut_line" id="clean_find">Скрыть поле поиска термоконтейнера</td>
+                </tr>
+                <tr>
+                    <td class="table_title">Номер термоконтейнера</td>
+                    <td><input type="text" id="find_number" maxlength="8"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table_title"></td>
+                    <td id="clean_input_find" class="cut_line">Очистить поле ввода<br></td>
+                </tr>
+                <tr>
+                    <td class="table_title"></td>
+                    <td><br><button id="btn_find" >Найти</button><br></td>
+                </tr>
             </table>
+            <div id="find_table" class="table_body" style="display: none">
+               <table>
+                   <thead>
+                       <tr>
+                           <th>Номер</th>
+                           <th>Место нахождения</th>
+                           <th>Время регистрации</th>
+                           <th>Принял термоконтейнер</th>
+                           <th>Получен из объекта</th>
+                           <th>Статус</th>
+                       </tr>
+                   </thead>
+                   <tbody id="find_table_body">
+                   </tbody>
+               </table>
+            </div>
         </div>
         </p>
+        <p>
+        <h4 id="search_containers">Нахождение термоконтейнеров по филиалам</h4>
+        <div id="search_area" style="display: none">
+            <table>
+                <tr>
+                    <td colspan='2' class="cut_line" id="clean_search">Скрыть поле поиска термоконтейнера</td>
+                </tr>
+                <tr>
+                    <td class="table_title">Выбор филиала</td>
+                    <td><select id="select_branch_search">
+                           <option value="1">По всем филиалам</option>
+                           <option value=${department.branch.id}>${department.branch.branchName}</option>
+                           <c:forEach var="branch" items="${branches}">
+                               <option value=${branch.id}>${branch.branchName}</option>
+                           </c:forEach>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table_title"></td>
+                    <td><br><button id="btn_search" >Показать</button><br></td>
+                </tr>
+            </table>
+            <div id="search_table" class="scroll_table" style="display: none">
+               <table>
+                   <thead>
+                       <tr>
+                           <th>Номер термоконтейнера</th>
+                           <th>Название объекта</th>
+                           <th>Характеристика</th>
+                           <th>Начало эксплуатации</th>
+                       </tr>
+                   </thead>
+                   <tbody id="search_table_body">
+                   </tbody>
+               </table>
+            </div>
+        </div>
+        </p>
+        <h4 id="used_containers">Неиспользуемые термоконтейнеры по филиалам</h4>
+        <div id="used_area" style="display: none">
+            <table>
+                <tr>
+                    <td colspan='2' class="cut_line" id="clean_used">Скрыть поле поиска термоконтейнера</td>
+                </tr>
+                <tr>
+                    <td class="table_title">Выбор филиала</td>
+                    <td><select id="select_branch_used">
+                           <option value="1">По всем филиалам</option>
+                           <option value=${department.branch.id}>${department.branch.branchName}</option>
+                           <c:forEach var="branch" items="${branches}">
+                               <option value=${branch.id}>${branch.branchName}</option>
+                           </c:forEach>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table_title">Не используемые более</td>
+                    <td><input id="days_used" type="number" style="width: 6em" value="45" min="30" step="15"/>
+                        <span style="margin-left: 10dp">дней</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table_title"></td>
+                    <td><br><button id="btn_used" >Показать</button><br></td>
+                </tr>
+            </table>
+            <div id="used_table" class="scroll_table" style="display: none">
+               <table>
+                   <thead>
+                       <tr>
+                           <th>Номер термоконтейнера</th>
+                           <th>Название объекта</th>
+                           <th>Характеристика</th>
+                           <th>Начало эксплуатации</th>
+                       </tr>
+                   </thead>
+                   <tbody id="used_table_body">
+                   </tbody>
+               </table>
+            </div>
+        </div>
+        </p>
+        <div id="table_area" class = "scroll_table" style="display: none">
+            <br>
+            <div class="cut_line" id="clean_table">Скрыть поле перемещений термоконтейнера</div>
+            <table>
+                <caption><strong>Последние перемещения термоконтейнера № <u><span id="container_number"></span></u></strong></caption>
+                <thead>
+                  <tr>
+                    <th>Отправитель</th>
+                    <th>Дата отправки</th>
+                    <th>Оформил отправку</th>
+                    <th>Получатель</th>
+                    <th>Дата приемки</th>
+                    <th>Оформил приемку</th>
+                  </tr>
+                </thead>
+                <tbody id = "container_table_body">
+                </tbody>
+            </table>
+            <br>
+        </div>
         <p>
         <h4 id="print_container">Создание штрих-кодов термоконтейнеров</h4>
         <table id="print_area" style="display: none">
@@ -239,11 +327,11 @@
             </tr>
             <tr>
                 <td class="table_title">Начать с номера</td>
-                <td><input type="text" id="start_number" maxlength="11"/></td>
+                <td><input type="text" id="start_number" maxlength="8"/></td>
             </tr>
             <tr>
                 <td class="table_title">До номера (включительно)</td>
-                <td><input type="text" id="end_number" maxlength="11"/></td>
+                <td><input type="text" id="end_number" maxlength="8"/></td>
             </tr>
             <tr>
                 <td class="table_title"></td>

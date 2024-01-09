@@ -1,5 +1,7 @@
 package kz.kdlolymp.termocontainers.entity;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -116,7 +118,6 @@ public class ParcelPoint implements Serializable, Comparable {
     public Long getPayment() {return payment;}
 
     public void setPayment(Long payment) {this.payment = payment;}
-
 
     @Override
     public int compareTo(Object o) {

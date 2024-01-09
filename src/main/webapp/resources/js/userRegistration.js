@@ -19,7 +19,7 @@ $(document).ready(function(){
                 if(position.length > 4 && email.length > 6 && surname.length > 2){
                     return true;
                 } else {
-                    $('#result_line').html("Проверьте заполнение всех полей формы !!! \n Фамилия должна содержать 3 и более символов.\n \n Перегрузите страницу ввод!!!");
+                    $('#result_line').html("Проверьте заполнение всех полей формы !!! <br> Фамилия должна содержать 3 и более символов.\n \n Перегрузите страницу ввод!!!");
                     return false;
                 }
             } else {
@@ -73,5 +73,33 @@ $(document).ready(function(){
         }
     });
 
+    $('#btn_check_double').on('click', function(){
+         $('#btn_check_double').css("display", "none");
+         $.ajax({
+             url : 'add-user/check-double-user',
+             method: 'GET',
+             dataType: 'text',
+             success : function(message) {
+                 $('#btn_check_double').css("display", "block");
+                 $('#double_field').css("display", "block");
+                 let double_users_table_body = $('#double_users_table_body');
+                 double_users_table_body.html("");
+                 double_users_table_body.prepend(message);
+             },
+             error:  function(response) {
+                 $('#btn_check_double').css("display", "block");
+                 $('#result_line').html(response);
+             }
+         });
+    });
+
+    $('#clean_double_field').click(function(){
+        $('#double_field').css("display", "none");
+    });
+
+    $('#select_position').on('change', function(){
+        $('#position').val($('#select_position option:selected').text());
+        $('#select_position').val("0");
+    });
 
 });

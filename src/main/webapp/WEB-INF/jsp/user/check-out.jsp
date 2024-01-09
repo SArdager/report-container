@@ -41,7 +41,7 @@
         <p>
             <div class="title_row">
                 <div class="title_name">Наименование объекта:</div>
-                <div class="color_text"> ${department.departmentName},  ${department.branch.branchName}</div>
+                <div class="color_text" id="dep_name"> ${department.departmentName},  ${department.branch.branchName}</div>
             </div>
             <div class="title_row">
                 <div class="title_name">Права пользователя</div>
@@ -51,7 +51,6 @@
         <hr>
         <h3><div id="check_line"></div></h3>
         <input type="hidden" id="departmentId" value="${department.id}" />
-        <input type="hidden" id="depPrefId" value="${depPreferences.id}" />
         <div id="checking_view" style="display: none">
             <table>
                 <tr id="all_company" style="display: none">
@@ -108,6 +107,10 @@
                 <tr id="amount_tr" style="display: table-row">
                     <td class="table_title">Количество в отгрузке</td>
                     <td><input type="number" id="amount" style="width: 8em;" value="1" /></td>
+                </tr>
+                <tr id="paid_tr" style="display: table-row">
+                    <td class="table_title">Оплата при доставке</td>
+                    <td><input type="checkbox" id="paid" style="margin-left: 20dp;"/></td>
                 </tr>
                 <tr>
                     <td class="table_title">Запись по отгрузке</td>
@@ -170,9 +173,9 @@
             let name = "${user.userFirstname}";
             document.getElementById("user_name").textContent = name.substring(0, 1) + ". ${user.userSurname}";
             let scan_field = document.getElementById("scan_field");
-            $('#select_out_branch').val(${depPreferences.branch.id});
             $('#select_out_branch').trigger("change");
             document.getElementById("number_outcome").focus();
+            let depName = $('#dep_name').html();
             let rights = $('#userRights').html();
             let checking_view = document.getElementById("checking_view");
 
@@ -182,6 +185,8 @@
                 checking_view.style.display = "block";
             } else if(rights.indexOf("ЛАБОР")>-1){
                 checking_view.style.display = "block";
+            } else if(depName.indexOf("Склад")>-1){
+                $('#checking_view').css("display", "block");
             } else {
                 $('#check_line').html("Права на регистрацию термоконтейнеров отсутствуют");
             }

@@ -10,7 +10,6 @@
     <script type="text/javascript" src="../resources/js/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="../resources/js/userRightsEditor.js"></script>
     <script type="text/javascript" src="../resources/js/selectDepartment.js"></script>
-
 </head>
 
 <body>
@@ -106,6 +105,23 @@
                 <input type="checkbox" id="roleId" />
             </div>
             <input type="hidden" id="user_role" name="role" />
+            <br>
+            <div class="field">
+                <label>Групповое изменение права редактирования</label>
+                <input type="checkbox" id="group_change_checkbox" />
+            </div>
+        </div>
+        <div id="group_change_field" style="display:none;">
+                <table style="width:320dp">
+                    <thead>
+                        <tr>
+                            <th style="width:300dp">Объект</th>
+                            <th style="width:20dp"></th>
+                        </tr>
+                    <thead>
+                        <tbody id="departments_table_body">
+                        </tbody>
+                </table>
         </div>
         <p>
         <br>

@@ -73,7 +73,7 @@
         </div>
         <div id="chose_department" class="title_row" style="display: none">
             <span class="date_line">Вывести по объекту:</span>
-            <input type="checkbox" id="department_checkbox" style="margin-left: 14px; "/>
+            <input type="checkbox" id="all_checkbox" style="margin-left: 14px; "/>
             <span class="text_line" >- все объекты</span>
             <select id="select_branch" class="select_in_line">
                 <option value="0">Выберите филиал</option>
@@ -132,6 +132,10 @@
                 <tr id="changeNote" style="display: none;">
                     <td class="table_change_title">Изменить запись</td>
                     <td><input type="text" id="inputSendNote"/></td>
+                </tr>
+                <tr>
+                    <td class="table_title">Место оплаты</td>
+                    <td id="paidEnd"></td>
                 </tr>
                 <tr>
                     <td class="table_title">Сумма оплаты</td>
@@ -221,18 +225,16 @@
            <table>
              <thead>
                <tr>
-                 <th>Номер</th>
-                 <th>Термохрон</th>
-                 <th>Дата отправки</th>
-                 <th>Дата приемки</th>
-                 <th>Отправитель</th>
-                 <th>Получатель</th>
-                 <th>Статус</th>
+                 <th style='width: 15%'>№ термоконтейнера</th>
+                 <th style='width: 10%'>Термохрон</th>
+                 <th style='width: 15%'>Дата отправки</th>
+                 <th style='width: 15%'>Дата приемки</th>
+                 <th style='width: 15%'>Отправитель</th>
+                 <th style='width: 15%'>Получатель</th>
+                 <th style='width: 15%'>Статус</th>
                </tr>
              </thead>
              <tbody id = "notes_table_body">
-             </tbody>
-             <tbody id = "containers_table_body">
              </tbody>
            </table>
         </div>
@@ -251,13 +253,19 @@
                 chose_department.style.display = "block";
             }
             $('#reload_journal').trigger("click");
-
+            $('input[type=radio][name=sample]').change(function(){
+                if(this.value != 'all'){
+                    $('#btn_export_excel').css("display", "none");
+                }
+            });
             $('#show_search_field').on('click', function(){
                 if($('#search_field').css("display") == "none"){
                     $('#search_field').css("display", "block");
+                    $('#show_note').css("display", "none");
                     $('#show_search_field').html("Скрыть поле поиска");
                 } else {
                     $('#search_field').css("display", "none");
+                    $('#show_note').css("display", "none");
                     $('#show_search_field').html("Поиск термоконтейнера по номеру");
                 }
             });

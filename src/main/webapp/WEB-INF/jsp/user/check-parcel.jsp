@@ -115,7 +115,7 @@
             </div>
             <div id="chose_department" class="title_row" style="display: none">
                <span class="date_line">Вывести по объекту:</span>
-               <input type="checkbox" id="department_checkbox" checked="checked" style="margin-left: 14px;" />
+               <input type="checkbox" id="all_checkbox" checked="checked" style="margin-left: 14px;" />
                <span class="text_line" >- все объекты</span>
                <select id="select_company" class="select_in_line">
                    <c:forEach var="company" items="${companies}">
@@ -204,16 +204,16 @@
             if(${department.id}==1){
                 document.getElementById("chose_department").style.display = "block";
             }
-            $('#department_checkbox').change (function(){
-                if($('#department_checkbox').is(':checked')==true){
+            $('#all_checkbox').change (function(){
+                if($('#all_checkbox').is(':checked')==true){
                     $('#select_branch').val("0");
                 }
             });
             $('#select_branch').change (function(){
                 if($('#select_branch').val()>0){
-                    document.getElementById("department_checkbox").checked = false;
+                    document.getElementById("all_checkbox").checked = false;
                 } else {
-                    document.getElementById("department_checkbox").checked = true;
+                    document.getElementById("all_checkbox").checked = true;
                 }
             });
 

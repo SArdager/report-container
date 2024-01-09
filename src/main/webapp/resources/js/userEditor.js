@@ -30,7 +30,7 @@ $(document).ready(function(){
                     }
                 },
                 error:  function(response) {
-                    $('#user_name').readOnly = false;
+                    $('#user_name').attr("readonly", false);
                 }
             });
         }
@@ -67,7 +67,7 @@ $(document).ready(function(){
         let textValue = $('#user_name').val().trim();
         $('#user_id').val(0);
         if(textValue.length>2){
-            $('#user_name').readOnly = true;
+            $('#user_name').attr("readonly", true);
             $.ajax({
                 url : '../admin/search-user',
                 method: 'POST',
@@ -82,15 +82,15 @@ $(document).ready(function(){
                             user.userSurname + ' ' + user.userFirstname + '; ' +
                             user.username + '</option');
                     });
-                    $('#user_name').readOnly = false;
+                    $('#user_name').attr("readonly", false);
                 },
                 error:  function(response) {
-                    $('#user_name').readOnly = false;
+                    $('#user_name').attr("readonly", false);
                 }
             });
         } else {
             document.getElementById("show_select").style.display = "none";
-            $('#user_name').readOnly = false;
+            $('#user_name').attr("readonly", false);
                 $('#surname').val("");
                 $('#firstname').val("");
                 $('#position').val("");
@@ -110,7 +110,7 @@ $(document).ready(function(){
                 data: {id: $('#user_id').val(), userSurname: $('#surname').val(),
                     userFirstname: $('#firstname').val(), position: $('#position').val(),
                     email: $('#email').val(), username: $('#username').val(),
-                    isEnabled: $('#is_enabled').val()},
+                    isEnabled: $('#is_enabled').val(), isLinkSend: $('#is_link_send').is(':checked')},
                 success: function(message) {
                     $('#btn_edit_user').css("display", "block");
                     $('#result_line').html(message);

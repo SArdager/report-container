@@ -99,6 +99,9 @@ public class ParcelsPayExcelExporter {
                 total += point.getPayment();
                 rowNumber++;
             }
+            Row lastRow = sheet.createRow(rowNumber);
+            createCell(lastRow, 1, "Сумма по филиалу:", boldStyle);
+            createCell(lastRow, 6, total, boldStyle);
         } else {
             String branch = "";
             for (int i=0; i<points.size(); i++) {
@@ -129,10 +132,10 @@ public class ParcelsPayExcelExporter {
                 total += point.getPayment();
                 rowNumber++;
             }
+            Row lastRow = sheet.createRow(rowNumber);
+            createCell(lastRow, 1, "Сумма по филиалу:", boldStyle);
+            createCell(lastRow, 7, total, boldStyle);
         }
-        Row lastRow = sheet.createRow(rowNumber);
-        createCell(lastRow, 1, "Сумма по филиалу:", boldStyle);
-        createCell(lastRow, 6, total, boldStyle);
     }
 
     private String getParcelType(String parcelNumber) {

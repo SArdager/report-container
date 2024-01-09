@@ -6,7 +6,7 @@ $(document).ready(function(){
         $('#parcels_pages_title').html('');
         $('#parcels_table_body').html('');
         if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
+            if($('#all_checkbox').is(':checked')==false){
                 departmentId = $('#select_department').val();
             }
         }
@@ -165,8 +165,8 @@ $(document).ready(function(){
         let parcels_html = "";
         $.each(parcels, function(key, parcel){
             parcels_html += "<tr><td style='color: blue; text-decoration: underline'>" + parcel.parcelNumber + "</td><td>" +
-            parcel.parcelType + "</td><td>" + parcel.dimensions + "</td><td>" + parcel.outDepartment  + "</td><td>" +
-            parcel.sendDateTime  + "</td><td>" + parcel.destinationName + "</td><td>" + parcel.deliveryDateTime +
+            parcel.parcelType + "</td><td>" + parcel.dimensions + "</td><td>" + parcel.outDepartment  + "</td><td style='text-align: center;'>" +
+            parcel.sendDateTime  + "</td><td>" + parcel.destinationName + "</td><td style='text-align: center;'>" + parcel.deliveryDateTime +
             "</td><td>" + parcel.payment + " тг</td><td>" + parcel.status +
             "</td><td>" + parcel.note + "</td></tr>";
         });
@@ -182,7 +182,7 @@ $(document).ready(function(){
         let currentRow = $('#parcels_pages_title').text();
         pageNumber = getPageNumber(totalParcels, pageSize, cellContent, currentRow);
         let departmentId = $('#department_id').val();
-        if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
+        if($('#all_checkbox').is(':checked')==false){
             departmentId = $('#select_department').val();
         }
         getPageParcels(pageNumber, departmentId);
@@ -270,15 +270,15 @@ $(document).ready(function(){
                 points_table_body.html('');
                 if(parcel!=null && parcel.parcelNumber!=null){
                     parcel_html = "<tr><td style='font-weight: bold;'>" + parcel.parcelNumber + "</td><td>" +
-                        parcel.parcelType + "</td><td>" + parcel.dimensions + "</td><td>" + parcel.outDepartment  + "</td><td>" +
-                        parcel.sendDateTime  + "</td><td>" + parcel.destinationName + "</td><td>" + parcel.deliveryDateTime +
+                        parcel.parcelType + "</td><td>" + parcel.dimensions + "</td><td>" + parcel.outDepartment  + "</td><td style='text-align: center;'>" +
+                        parcel.sendDateTime  + "</td><td>" + parcel.destinationName + "</td><td style='text-align: center;'>" + parcel.deliveryDateTime +
                         "</td><td>" + parcel.payment + " тг</td><td>" + parcel.status +
                         "</td><td>" + parcel.note + "</td></tr>";
                     parcels_table_body.prepend(parcel_html);
                     let points = parcel.parcelPoints;
                     $.each(points, function(key, point){
-                        points_html += "<tr><td style='font-weight: bold;'>" + point.departmentName + "</td><td>" +
-                        point.arriveTime + "</td><td>" + point.intoUser + "</td><td>" + point.sendTime  + "</td><td>" +
+                        points_html += "<tr><td style='font-weight: bold;'>" + point.departmentName + "</td><td style='text-align: center;'>" +
+                        point.arriveTime + "</td><td>" + point.intoUser + "</td><td style='text-align: center;'>" + point.sendTime  + "</td><td>" +
                         point.outUser  + "</td><td>" + point.parent + "</td><td>" + point.payment + " тг</td><td>" + point.text + "</td></tr>";
                     });
                     points_table_body.prepend(points_html);
@@ -314,7 +314,7 @@ $(document).ready(function(){
     $('#btn_parcel_excel').on('click', function(){
         let departmentId = $('#department_id').val();
         if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
+            if($('#all_checkbox').is(':checked')==false){
                 departmentId = $('#select_department').val();
             }
         }
@@ -341,6 +341,18 @@ $(document).ready(function(){
         $('#check_parcels_field').css("display", "none");
     });
 
+    $('#show_check_containers').on('click', function(){
+        $('#check_container_field').css("display", "block");
+        $('#check_parcels_field').css("display", "none");
+        $('#check_in_field').css("display", "none");
+        $('#reload_input_containers').trigger("click");
+    });
+
+    $('#close_check_container').on('click', function(){
+        $('#check_container_field').css("display", "none");
+    });
+
+
     $('#clean_input_parcel').on('click', function(){
         $('#parcel_number_income').val("");
         $('#parcel_textarea_in').val("");
@@ -360,7 +372,7 @@ $(document).ready(function(){
                     parcels_table_body.html('');
                     $.each(parcels, function(key, parcel){
                         parcels_html += "<tr><td>" + parcel.parcelNumber + "</td><td>" + parcel.parcelType + "</td><td>" +
-                               parcel.outDepartment  + "</td><td>" + parcel.sendDateTime + "</td><td>" + parcel.dimensions + "</td></tr>";
+                               parcel.outDepartment  + "</td><td style='text-align: center;'>" + parcel.sendDateTime + "</td><td>" + parcel.dimensions + "</td></tr>";
                     });
                     parcels_table_body.prepend(parcels_html);
                 } else {

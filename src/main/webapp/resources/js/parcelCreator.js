@@ -4,6 +4,11 @@ $(document).ready(function(){
         $('#dimensions').val("");
         $('#note').val("");
         $('#information').prop('checked', false);
+        if($('#select_parcel').val()==1){
+            $('#dimensions').css("display", "none");
+        } else {
+            $('#dimensions').css("display", "block");
+        }
     });
     $('#select_branch').on('change', function(){
         $('#dimensions').val("");

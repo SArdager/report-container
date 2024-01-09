@@ -48,23 +48,32 @@
             </div>
             <br>
             <br>
-                <div class="field">
-                    <label>Филиал</label>
-                    <select id="select_branch" name="id">
-                        <option value=-1>Выберите предприятие</option>
-                        <c:forEach var="branch" items="${branches}">
-                            <option value=${branch.id}>${branch.branchName}</option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Новое название</label>
-                    <input type="text" id="branchName" name="branchName" size="40" required/>
-                </div>
+            <div class="field">
+                <label>Филиал</label>
+                <select id="select_branch" name="id">
+                    <option value=-1>Выберите предприятие</option>
+                    <c:forEach var="branch" items="${branches}">
+                        <option value=${branch.id}>${branch.branchName}</option>
+                    </c:forEach>
+                </select>
+            </div>
+            <div class="field">
+                <label>Новое название</label>
+                <input type="text" id="branchName" name="branchName" size="40" required/>
+            </div>
             <div class="title_row" style="margin-left: 20%">
                 <input type="hidden" class ="two_in_line" id="btn_branch" value="Создать" />
                 <input type="hidden" class ="two_in_line" id="btn_del_branch" value="Удалить" />
             </div>
+                <div class="field">
+                    <label>Изменить компанию</label>
+                    <select id="select_new_company" name="id" >
+                        <c:forEach var="company" items="${companies}">
+                            <option value=${company.id}>${company.companyName}</option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <input type="button" id="btn_sql" value="Выполнить" style="margin-left: 20%"/>
             <br>
             <br>
                 <div class="field">
@@ -85,7 +94,6 @@
                 <input type="hidden" class ="two_in_line" id="btn_del_department" value="Удалить" />
             </div>
         </div>
-
      </div>
      <div class="buffer" style = "height: 5em;"></div>
   </section>

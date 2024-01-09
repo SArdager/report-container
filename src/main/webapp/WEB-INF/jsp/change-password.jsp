@@ -42,7 +42,7 @@
                 <td>
                 <br>
                 <br>
-                <button id="btn_change_password">Сменить пароль</button></td>
+                <input type="button" id="btn_change_password" value="Сменить пароль"/></td>
             </tr>
         </table>
         </form:form>

@@ -38,7 +38,7 @@ window.addEventListener("load", function(){
             method: 'POST',
             dataType: 'json',
             data: {surname: $('#search_surname').val(), firstname: $('#search_firstname').val(),
-                    branchId: $('#select_branch').val()},
+                    login: $('#search_login').val(), branchId: $('#select_branch').val(), departmentId: $('#select_department').val()},
             success: function(users) {
                 $('#btn_find_user').css("display", "block");
                 let new_lines_html ='';
@@ -50,16 +50,36 @@ window.addEventListener("load", function(){
                         $('#result_line').html("Указанный в запросе пользователь отсутствует в базе.");
                     } else {
                         new_lines_html+="<tr><td style='color: blue; text-decoration: underline'>"+ user.username + "</td><td>" +
-                            user.userSurname + " " + user.userFirstname + "</td><td>" +
-                            user.position + "</td><td>" + user.email + "</td><td>" +
-                            user.isEnabled + "</td><td>" + user.role + "</td></tr>";
+                            user.userSurname + " " + user.userFirstname + "</td><td>" + user.position + "</td><td>" +
+                            user.email + "</td><td>" + user.isEnabled + "</td><td>" + user.role + "</td></tr>";
                     }
                 });
                 body.prepend(new_lines_html);
             },
             error:  function(response) {
                 $('#btn_find_user').css("display", "block");
-                $('#result_line').html("Для получения информации о правах пользователя кликните по ячейке с логином.");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+            }
+        });
+    });
+
+    $('#select_branch').on('change', function(){
+        $.ajax({
+            url: '../user/change-department/select-branch',
+            method: 'POST',
+            dataType: 'json',
+            data: {branchId: $('#select_branch').val()},
+            success: function(departments) {
+                $('#select_department').empty();
+                $('#select_department').append('<option value="1">По всем объектам</option');
+                $.each(departments, function(key, department){
+                    $('#select_department').append('<option value="' + department.id + '">' + department.departmentName + '</option');
+                });
+            },
+            error:  function(response) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
             }
         });
     });

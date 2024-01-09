@@ -70,7 +70,7 @@
                         </tbody>
                 </table>
                 <br>
-                <div id="save_dep" class="cut_line" style="display: none">Показывать первым при загрузке страницы</div>
+                <div id="save_dep" class="cut_line" style="display: none">Сохранить отмеченные объекты (с зеленым цветом будет в верхней строке)</div>
             </div>
         </div>
 
@@ -97,7 +97,7 @@
             });
         });
     </script>
-    <script type="text/javascript" src="../resources/js/chooseBranch.js"></script>
+    <script type="text/javascript" src="../resources/js/setupEditor.js"></script>
     <div class="buffer" style = "height: 5em;"></div>
 </body>
 </html>

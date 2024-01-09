@@ -53,6 +53,9 @@ $(document).ready(function(){
                 $.each(departments, function(key, department){
                     $('#select_change_department').append('<option value="' + department.id + '">' + department.departmentName + '</option');
                 });
+                if(document.getElementById('toDepartmentId')!=null){
+                    $('#select_change_department').val($('#toDepartmentId').val());
+                }
             },
             error:  function(response) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -72,18 +75,10 @@ $(document).ready(function(){
             dataType: 'json',
             data: {branchId: $('#select_out_branch').val()},
             success: function(departments) {
-                let depPrefId = $('#depPrefId').val();
-                let isShowed = false;
                 $('#select_department').empty();
                 $.each(departments, function(key, department){
                     $('#select_department').append('<option value="' + department.id + '">' + department.departmentName + '</option');
-                    if(department.id == depPrefId){
-                        let isShowed = true;
-                    }
                 });
-                if(isShowed){
-                    $('#select_department').val($('#depPrefId').val());
-                }
             },
             error:  function(response) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });

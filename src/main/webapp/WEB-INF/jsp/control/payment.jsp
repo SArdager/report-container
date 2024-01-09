@@ -63,7 +63,7 @@
         <div class="title_row" >
             <span class="date_line">Вывести по объекту:</span>
             <div class="checkbox_margin" id="chose_checkbox" style="display: none">
-                <input type="checkbox" id="department_checkbox" style="margin: 0px; padding: 0px"/>
+                <input type="checkbox" id="all_checkbox" style="margin: 0px; padding: 0px"/>
                 <span class="text_line">- все объекты</span>
             </div>
             <select id="select_branch" class="select_in_line" style="display: none">
@@ -87,7 +87,7 @@
                    <span id="reload_payment" class ="reload_line">Показать</span>
                    <img src="../resources/images/export_excel_48.png" id="btn_export_payment" alt="">
                </div>
-               <div id="payment_pages_title" ></div>
+               <div id="payment_pages_title" style="margin-left: 20px;"></div>
             </div>
             <div id="payment_table" class = "scroll_table">
                <table>
@@ -100,6 +100,7 @@
                      <th>Получатель</th>
                      <th>Стоимость</th>
                      <th>Количество</th>
+                     <th>Место оплаты</th>
                      <th>Запись отправителя</th>
                    </tr>
                  </thead>
@@ -116,7 +117,7 @@
                    <span id="reload_parcels" class ="reload_line">Показать</span>
                    <img src="../resources/images/export_excel_48.png" id="btn_export_parcels" align = "top" alt="">
                </div>
-               <div id="parcels_pages_title"></div>
+               <div id="parcels_pages_title" style="margin-left: 20px;"></div>
             </div>
             <div id="parcels_payment_table" class = "scroll_table">
                <table>
@@ -217,8 +218,8 @@
             });
 
             $('#select_branch').trigger("change");
-            $('#department_checkbox').on('click', function(){
-                if($('#department_checkbox').is(':checked')){
+            $('#all_checkbox').on('click', function(){
+                if($('#all_checkbox').is(':checked')){
                     $('#branch_checkbox').prop('checked', false);
                 }
             });

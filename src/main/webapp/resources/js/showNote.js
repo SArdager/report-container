@@ -1,87 +1,67 @@
 $(document).ready(function(){
+
     $('#reload_journal').on('click', function(){
-        let departmentId = $('#department_id').val();
-        $('#totalNotes').val(0);
-        $('#journal_pages_title').html('');
-        $('#notes_table_body').html('');
-        $('#containers_table_body').html('');
-        $('#close_search').trigger('click');
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
-                departmentId = $('#select_department').val();
+        if($('#department_id').val()==1 && $('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            let departmentId = $('#department_id').val();
+            $('#totalNotes').val(0);
+            $('#journal_pages_title').html('');
+            $('#notes_table_body').html('');
+            $('#close_search').trigger('click');
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    departmentId = $('#select_department').val();
+                }
             }
-        }
-        let sample = $('input[type="radio"][name="sample"]:checked').val();
-        $('#line_cut_note').click();
-        if(departmentId>0){
-            $('#reload_journal').css("display", "none");
-            if(sample=="all"){
-                $.ajax({
-                    url: '../user/load-data/journal-totalNotes',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), departmentId: departmentId},
-                    success: function(totalElements) {
-                        let totalNotes = parseInt(totalElements);
-                        if(totalNotes>0){
-                            $('#totalNotes').val(totalNotes);
-                            showNotesPage(0, departmentId);
-                        }
-                    },
-                    error:  function(response) {
-                        $('#reload_journal').css("display", "block");
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        $('#result_line').html("Ошибка обращения в базу даннных. Перегрузите страницу.");
-                    }
-                });
-            } else if(sample == "route"){
-                $.ajax({
-                    url: '../user/load-data/journal-at-route',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {departmentId: departmentId},
-                    success: function(notes) {
-                        $('#reload_journal').css("display", "block");
-                        let notes_html = "";
-                        let containers_table_body = $('#containers_table_body');
-                        if(notes.length>0){
-                            $.each(notes, function(key, note){
-                                notes_html += "<tr><td style='color: blue; '>" + note.containerNumber + "</td><td>" + note.thermometer +
-                                "</td><td>" + note.sendTime + "</td><td>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" +
-                                note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
-                            });
-                        } else{
-                            notes_html += "<tr><td colspan='6'>Все отправленные термоконтейнеры доставлены</td></tr>";
-                        }
-                        containers_table_body.prepend(notes_html);
-                    },
-                    error:  function(response) {
-                        $('#reload_journal').css("display", "block");
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        $('#result_line').html("Ошибка обращения в базу даннных. Перегрузите страницу.");
-                    }
-                });
-            } else {
-                if(departmentId>1){
+            let sample = $('input[type="radio"][name="sample"]:checked').val();
+            $('#line_cut_note').click();
+            if(departmentId>0){
+                $('#reload_journal').css("display", "none");
+                if(sample=="all"){
+                    $('#btn_export_excel').css("display", "block");
                     $.ajax({
-                        url: '../user/load-data/journal-at-home',
+                        url: '../user/load-data/journal-totalNotes',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), departmentId: departmentId},
+                        success: function(totalElements) {
+                            let totalNotes = parseInt(totalElements);
+                            if(totalNotes>0){
+                                $('#totalNotes').val(totalNotes);
+                                showNotesPage(0, departmentId);
+                            } else {
+                                let notes_table_body = $('#notes_table_body');
+                                notes_table_body.prepend("<tr><td colspan='7'>За последний месяц термоконтейнеры не регистрировались</td></tr>");
+                            }
+                            $('#reload_journal').css("display", "block");
+                        },
+                        error:  function(response) {
+                            $('#reload_journal').css("display", "block");
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            $('#result_line').html("Ошибка обращения в базу даннных. Перегрузите страницу.");
+                        }
+                    });
+                } else if(sample == "route"){
+                    $.ajax({
+                        url: '../user/load-data/journal-at-route',
                         method: 'POST',
                         dataType: 'json',
                         data: {departmentId: departmentId},
                         success: function(notes) {
                             $('#reload_journal').css("display", "block");
                             let notes_html = "";
-                            let containers_table_body = $('#containers_table_body');
+                            let notes_table_body = $('#notes_table_body');
                             if(notes.length>0){
                                 $.each(notes, function(key, note){
-                                    notes_html += "<tr><td style='color: blue; '>" + note.containerNumber + "</td><td>" + note.thermometer +
-                                    "</td><td>" + note.sendTime + "</td><td>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" +
-                                    note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
+                                    notes_html += "<tr><td style='text-align: end;'><span style='color: white'>" + note.id + "/</span><span style='color: blue; text-decoration: underline'>" +
+                                    note.containerNumber + "</span></td><td style='width: 10%; text-align: end; padding-end: 20px;>'" + note.thermometer + "</td><td style='text-align: center;'>" +
+                                    note.sendTime + "</td><td style='text-align: center;'>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" + note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
                                 });
                             } else{
-                                notes_html += "<tr><td colspan='6'>Отсутствуют термоконтейнеры, зарегистрированные (находящиеся) на объекте</td></tr>";
+                                notes_html += "<tr><td colspan='7'>Все отправленные термоконтейнеры доставлены</td></tr>";
                             }
-                            containers_table_body.prepend(notes_html);
+                            notes_table_body.prepend(notes_html);
                         },
                         error:  function(response) {
                             $('#reload_journal').css("display", "block");
@@ -90,153 +70,212 @@ $(document).ready(function(){
                         }
                     });
                 } else {
-                    $('#reload_journal').css("display", "block");
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    $('#result_line').html("Выберите объект, по которому следует вывести результат запроса.");
+                    if(departmentId>1){
+                        $.ajax({
+                            url: '../user/load-data/journal-at-home',
+                            method: 'POST',
+                            dataType: 'json',
+                            data: {departmentId: departmentId},
+                            success: function(notes) {
+                                $('#reload_journal').css("display", "block");
+                                let notes_html = "";
+                                let notes_table_body = $('#notes_table_body');
+                                if(notes.length>0){
+                                    $.each(notes, function(key, note){
+                                        notes_html += "<tr><td style='text-align: end;'><span style='color: white'>" + note.id + "/</span><span style='color: blue; text-decoration: underline'>" +
+                                        note.containerNumber + "</span></td><td style='width: 10%; text-align: end; padding-end: 20px;'>" + note.thermometer + "</td><td style='text-align: center;'>" +
+                                        note.sendTime + "</td><td style='text-align: center;'>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" + note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
+                                    });
+                                } else{
+                                    notes_html += "<tr><td colspan='7'>Отсутствуют термоконтейнеры, зарегистрированные (находящиеся) на объекте</td></tr>";
+                                }
+                                notes_table_body.prepend(notes_html);
+                            },
+                            error:  function(response) {
+                                $('#reload_journal').css("display", "block");
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                $('#result_line').html("Ошибка обращения в базу даннных. Перегрузите страницу.");
+                            }
+                        });
+                    } else {
+                        $('#reload_journal').css("display", "block");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        $('#result_line').html("Выберите объект, по которому следует вывести результат запроса.");
+                    }
                 }
             }
         }
     });
 
     $('#reload_payment').on('click', function(){
-        let departmentId = $('#department_id').val();
-        let branchId = $('#branch_id').val();
-        let check = $('#branch_checkbox').is(':checked');
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
-                branchId = $('#select_branch').val();
-                if($('#branch_checkbox').is(':checked')==true){
-                    departmentId = 0;
-                } else {
-                    departmentId = $('#select_department').val();
+        if($('#department_id').val()==1 && $('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            let departmentId = $('#department_id').val();
+            let branchId = $('#branch_id').val();
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    branchId = $('#select_branch').val();
+                    if($('#branch_checkbox').is(':checked')==false){
+                        departmentId = $('#select_department').val();
+                    }
                 }
             }
+            $('#reload_payment').css("display", "none");
+            $.ajax({
+                url: '../control/payment/report-totalNotes',
+                method: 'POST',
+                dataType: 'json',
+                data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), departmentId: departmentId, branchId: branchId},
+                success: function(totalNumbers) {
+                    $('#reload_payment').css("display", "block");
+                    let totalPayments = parseInt(totalNumbers);
+                    $('#payment_table_body').html('');
+                    $('#payment_pages_title').html('');
+                    if(totalPayments>0){
+                        $('#totalPayments').val(totalPayments);
+                        showPaymentsPage(0, departmentId, branchId);
+                    } else {
+                        let table_body = $('#payment_table_body');
+                        table_body.prepend("<tr><td colspan='6'>Отсутствуют данные по оплате перевозки на объекте за выбранный период</td></tr>");
+                    }
+                },
+                error:  function(response) {
+                    $('#reload_payment').css("display", "block");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                }
+            });
         }
-        $.ajax({
-            url: '../control/payment/report-totalNotes',
-            method: 'POST',
-            dataType: 'json',
-            data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), departmentId: departmentId, branchId: branchId},
-            success: function(totalNumbers) {
-                let totalPayments = parseInt(totalNumbers);
-                $('#payment_table_body').html('');
-                $('#payment_pages_title').html('');
-                if(totalPayments>0){
-                    $('#totalPayments').val(totalPayments);
-                    showPaymentsPage(0, departmentId, branchId);
-                } else {
-                    let table_body = $('#payment_table_body');
-                    table_body.prepend("<tr><td colspan='6'>Отсутствуют данные по оплате перевозки на объекте за выбранный период</td></tr>");
-                }
-            },
-            error:  function(response) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
-            }
-        });
     });
 
     $('#reload_parcels').on('click', function(){
-        let departmentId = $('#department_id').val();
-        let branchId = $('#branch_id').val();
-        $('#totalParcels').val(0);
-        $('#parcels_pages_title').html('');
-        $('#parcels_table_body').html('');
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false){
-                if($('#branch_checkbox').is(':checked')==true){
-                    departmentId = 0;
-                } else {
-                    departmentId = $('#select_department').val();
-                }
-                branchId = $('#select_branch').val();
-            }
-        }
-        $.ajax({
-            url: '../control/payment/parcels-totalNumbers',
-            method: 'POST',
-            dataType: 'json',
-            data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(),
-                departmentId: departmentId, branchId: branchId},
-            success: function(totalNumbers) {
-                let totalParcels = parseInt(totalNumbers);
-                if(totalParcels>0){
-                    $('#totalParcels').val(totalParcels);
-                    if(departmentId!=1){
-                        showParcelsPaymentsPage(0, departmentId, branchId);
+        if($('#department_id').val()==1 && $('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            let departmentId = $('#department_id').val();
+            let branchId = $('#branch_id').val();
+            $('#totalParcels').val(0);
+            $('#parcels_pages_title').html('');
+            $('#parcels_table_body').html('');
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    if($('#branch_checkbox').is(':checked')==true){
+                        departmentId = 0;
                     } else {
-                        showAllParcelsPaymentsPage(0);
+                        departmentId = $('#select_department').val();
                     }
-                } else {
-                    let table_body = $('#parcels_table_body');
-                    table_body.prepend("<tr><td colspan='8'>Оплата почтовых отправлений не зарегистрирована</td></tr>");
+                    branchId = $('#select_branch').val();
                 }
-            },
-            error:  function(response) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                $('#result_line').html("Перегрузите страницу.");
             }
-        });
+            $('#reload_parcels').css("display", "none");
+            $.ajax({
+                url: '../control/payment/parcels-totalNumbers',
+                method: 'POST',
+                dataType: 'json',
+                data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(),
+                    departmentId: departmentId, branchId: branchId},
+                success: function(totalNumbers) {
+                    $('#reload_parcels').css("display", "block");
+                    let totalParcels = parseInt(totalNumbers);
+                    if(totalParcels>0){
+                        $('#totalParcels').val(totalParcels);
+                        if(departmentId!=1){
+                            showParcelsPaymentsPage(0, departmentId, branchId);
+                        } else {
+                            showAllParcelsPaymentsPage(0);
+                        }
+                    } else {
+                        let table_body = $('#parcels_table_body');
+                        table_body.prepend("<tr><td colspan='8'>Оплата почтовых отправлений не зарегистрирована</td></tr>");
+                    }
+                },
+                error:  function(response) {
+                    $('#reload_parcels').css("display", "block");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    $('#result_line').html("Перегрузите страницу.");
+                }
+            });
+        }
     });
 
     $('#reload_delay').on('click', function(){
-        document.getElementById("show_points").style.display = "none";
-        let departmentId = $('#department_id').val();
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
-                departmentId = $('#select_department').val();
-            }
-        }
-        let way = $('input[type="radio"][name="way"]:checked').val();
-        $.ajax({
-            url: '../control/delay/report-totalNotes',
-            method: 'POST',
-            dataType: 'json',
-            data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), way: way,
-                    departmentId: departmentId, delayLimit: $('#delay_limit').val()},
-            success: function(totalElements) {
-                let totalNotes = parseInt(totalElements);
-                $('#delay_pages_title').html('');
-                $('#delay_table_body').html('');
-                if(totalNotes>0){
-                    $('#totalNotes').val(totalNotes);
-                    showDelayPage(0, departmentId);
-                } else {
-                    let table_body = $('#delay_table_body');
-                    table_body.prepend("<tr><td colspan='9'>Отсутствуют данные по опозданиям прибытия за выбранный период</td></tr>");
+        if($('#department_id').val()==1 && $('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            document.getElementById("show_points").style.display = "none";
+            let departmentId = $('#department_id').val();
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    departmentId = $('#select_department').val();
                 }
-            },
-            error:  function(response) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
             }
-        });
+            let way = $('input[type="radio"][name="way"]:checked').val();
+            $('#reload_delay').css("display", "none");
+            $.ajax({
+                url: '../control/delay/report-totalNotes',
+                method: 'POST',
+                dataType: 'json',
+                data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), way: way,
+                        departmentId: departmentId, delayLimit: $('#delay_limit').val()},
+                success: function(totalElements) {
+                    $('#reload_delay').css("display", "block");
+                    let totalNotes = parseInt(totalElements);
+                    $('#delay_pages_title').html('');
+                    $('#delay_table_body').html('');
+                    if(totalNotes>0){
+                        $('#totalNotes').val(totalNotes);
+                        showDelayPage(0, departmentId);
+                    } else {
+                        let table_body = $('#delay_table_body');
+                        table_body.prepend("<tr><td colspan='9'>Отсутствуют данные по опозданиям прибытия за выбранный период</td></tr>");
+                    }
+                },
+                error:  function(response) {
+                    $('#reload_delay').css("display", "block");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                }
+            });
+        }
     });
 
     $('#reload_route').on('click', function(){
-        document.getElementById("show_route_points").style.display = "none";
-        $('#route_table_body').html('');
-        $('#route_pages_title').html('');
-        $.ajax({
-            url: '../control/route/report-totalNotes',
-            method: 'POST',
-            dataType: 'json',
-            data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), containerId: $('#select_container').val()},
-            success: function(totalElements) {
-                let totalNotes = parseInt(totalElements);
-                if(totalNotes>0){
-                    $('#totalNotes').val(totalNotes);
-                    showRoutePage(0);
-                } else {
-                    let table_body = $('#route_table_body');
-                    table_body.prepend("<tr><td colspan='8'>Отсутствуют данные по перемещениям термоконтейнера за выбранный период</td></tr>");
-                }
-            },
-            error:  function(response) {
+        if($('#department_id').val()==1 && $('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            $('#show_route_points').css("display", "none");
+            $('#route_table_body').html('');
+            $('#route_pages_title').html('');
+            $('#reload_route').css("display", "none");
+            if($('#container_id').val()>0){
+                $.ajax({
+                    url: '../control/route/report-totalNotes',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), containerId: $('#container_id').val()},
+                    success: function(totalElements) {
+                        $('#reload_route').css("display", "block");
+                        let totalNotes = parseInt(totalElements);
+                        if(totalNotes>0){
+                            $('#totalNotes').val(totalNotes);
+                            showRoutePage(0);
+                        } else {
+                            let table_body = $('#route_table_body');
+                            table_body.prepend("<tr><td colspan='8'>Отсутствуют данные по перемещениям термоконтейнера за выбранный период</td></tr>");
+                        }
+                    },
+                    error:  function(response) {
+                        $('#reload_route').css("display", "block");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                    }
+                });
+            } else {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                $('#result_line').html("Заполните номер термоконтейнера");
             }
-        });
+        }
     });
 
     function showNotesPage(pageNumber, departmentId){
@@ -259,9 +298,9 @@ $(document).ready(function(){
                     let pages_html = getPagesHtml(pageNumber, pageSize, totalNotes);
                     pages_title.prepend(pages_html);
                     $.each(notes, function(key, note){
-                        notes_html += "<tr><td style='color: blue; text-decoration: underline'>" + note.id + " / " + note.containerNumber +
-                        "</td><td>" + note.thermometer + "</td><td>" + note.sendTime + "</td><td>" + note.arriveTime + "</td><td>" +
-                        note.outDepartment  + "</td><td>" + note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
+                        notes_html += "<tr><td style='text-align: end;'><span style='color: white'>" + note.id + "/</span><span style='color: blue; text-decoration: underline'>" +
+                        note.containerNumber + "</span></td><td style='width: 10%; text-align: end; padding-end: 20px;'>" + note.thermometer + "</td><td style='text-align: center;'>" +
+                        note.sendTime + "</td><td style='text-align: center;'>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" + note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
                     });
                     table_body.prepend(notes_html);
                 }
@@ -291,26 +330,64 @@ $(document).ready(function(){
                 let pages_title = $('#payment_pages_title');
                 let table_body = $('#payment_table_body');
                 pages_title.prepend(pages_html);
-                let sumPayment = 0;
                 let depName = "";
-                for(let i=0; i<notes.length; i++){
-                    let note = notes[i];
-                    if(depName != note.outBranch){
-                        if(i>0){
-                            notes_html+= "<tr><td><b>Сумма по филиалу на странице:</b></td><td></td><td></td><td></td><td><b>" +
-                                    sumPayment + " тг</b></td><td></td><td></td></tr>";
+                let sumPayment = 0;
+                if(branchId == 1){
+                    for(let i=0; i<notes.length; i++){
+                        let note = notes[i];
+                        if(depName != note.outBranch){
+                            if(i > 0){
+                                notes_html+= "<tr><td><b>Сумма по филиалу на странице:</b></td><td></td><td></td><td></td><td><b>" +
+                                        sumPayment + " тг</b></td><td></td><td></td><td></td></tr>";
+                            }
+                            notes_html += "<tr><td colspan='8'><b>" + note.outBranch + "</b></td></tr>";
+                            depName = note.outBranch;
+                            sumPayment = 0;
                         }
-                        notes_html += "<tr><td colspan='7'><b>" + note.outBranch + "</b></td></tr>";
-                        depName = note.outBranch;
-                        sumPayment = 0;
+                        notes_html += "<tr><td>" + note.containerNumber + "</td><td>" + note.sendDate + "</td><td>" +
+                                note.outDepartment + "</td><td>" + note.toDepartment  + "</td><td>" + note.sendPay  +
+                                " тг</td><td>" + note.amount + "</td><td>" + note.paidEnd + "</td><td>" + note.sendNote + "</td></tr>";
+                        sumPayment += Number(note.sendPay);
                     }
-                    notes_html += "<tr><td>" + note.containerNumber + "</td><td>" + note.sendDate +
-                            "</td><td>" + note.outDepartment + "</td><td>" + note.toDepartment  + "</td><td>" +
-                            note.sendPay  + " тг</td><td>" + note.amount + "</td><td>" + note.sendNote + "</td></tr>";
-                    sumPayment += Number(note.sendPay);
+                    notes_html+= "<tr><td><b>Сумма по филиалу на странице:</b></td><td></td><td></td><td></td><td><b>" +
+                                sumPayment + " тг</b></td><td></td><td></td><td></td></tr>";
+                } else {
+                    if(departmentId == 1){
+                        for(let i=0; i<notes.length; i++){
+                            let note = notes[i];
+                            if(i == 0){
+                                if(note.paidEnd == "при получении"){
+                                    notes_html += "<tr><td colspan='8'><b>" + note.toBranch + "</b></td></tr>";
+                                } else {
+                                    notes_html += "<tr><td colspan='8'><b>" + note.outBranch + "</b></td></tr>";
+                                }
+                            }
+                            notes_html += "<tr><td>" + note.containerNumber + "</td><td>" + note.sendDate + "</td><td>" +
+                                    note.outDepartment + "</td><td>" + note.toDepartment  + "</td><td>" + note.sendPay  +
+                                    " тг</td><td>" + note.amount + "</td><td>" + note.paidEnd + "</td><td>" + note.sendNote + "</td></tr>";
+                            sumPayment += Number(note.sendPay);
+                        }
+                        notes_html+= "<tr><td><b>Сумма по филиалу на странице:</b></td><td></td><td></td><td></td><td><b>" +
+                                    sumPayment + " тг</b></td><td></td><td></td><td></td></tr>";
+                    } else {
+                        for(let i=0; i<notes.length; i++){
+                            let note = notes[i];
+                            if(i == 0){
+                                if(note.paidEnd == "при получении"){
+                                    notes_html += "<tr><td colspan='8'><b>" + note.toDepartment + "</b></td></tr>";
+                                } else {
+                                    notes_html += "<tr><td colspan='8'><b>" + note.outDepartment + "</b></td></tr>";
+                                }
+                            }
+                            notes_html += "<tr><td>" + note.containerNumber + "</td><td>" + note.sendDate + "</td><td>" +
+                                    note.outDepartment + "</td><td>" + note.toDepartment  + "</td><td>" + note.sendPay  +
+                                    " тг</td><td>" + note.amount + "</td><td>" + note.paidEnd + "</td><td>" + note.sendNote + "</td></tr>";
+                            sumPayment += Number(note.sendPay);
+                        }
+                        notes_html+= "<tr><td><b>Сумма по объекту на странице:</b></td><td></td><td></td><td></td><td><b>" +
+                                    sumPayment + " тг</b></td><td></td><td></td><td></td></tr>";
+                    }
                 }
-                notes_html+= "<tr><td><b>Сумма по филиалу на странице:</b></td><td></td><td></td><td></td><td><b>" +
-                        sumPayment + " тг</b></td><td></td><td></td></tr>";
                 table_body.prepend(notes_html);
             },
             error:  function(response) {
@@ -340,8 +417,8 @@ $(document).ready(function(){
                     let sumPayment = 0;
                     let parcels_html = "<tr><td colspan='8'><b>" + points[0].departmentName + "</b></td></tr>";
                     $.each(points, function(key, point){
-                        parcels_html += "<tr><td style='color: blue; text-decoration: underline;'>" + point.parcelNumber + "</td><td>" + point.sendTime + "</td><td>" +
-                                point.parcelType + "</td><td>" + point.outUser + "</td><td>" + point.toDepartmentName  + "</td><td>" +
+                        parcels_html += "<tr><td style='color: blue; text-decoration: underline;'>" + point.parcelNumber + "</td><td style='text-align: center;'>" +
+                                point.sendTime + "</td><td>" + point.parcelType + "</td><td>" + point.outUser + "</td><td>" + point.toDepartmentName  + "</td><td>" +
                                 point.parent  + "</td><td>" + point.payment + " тг</td><td>" + point.text + "</td></tr>";
 
                         sumPayment += Number(point.payment);
@@ -389,7 +466,7 @@ $(document).ready(function(){
                             sumPayment = 0;
                         }
                         parcels_html += "<tr><td style='color: blue; text-decoration: underline;'>" + point.parcelNumber +
-                                "</td><td>" + point.sendTime + "</td><td>" + point.parcelType + "</td><td>" + point.outUser +
+                                "</td><td style='text-align: center;'>" + point.sendTime + "</td><td>" + point.parcelType + "</td><td>" + point.outUser +
                                 "</td><td>" + point.toDepartmentName  + "</td><td>" + point.parent  + "</td><td>" +
                                 point.payment + " тг</td><td>" + point.text + "</td></tr>";
                         sumPayment += Number(point.payment);
@@ -426,9 +503,9 @@ $(document).ready(function(){
                     let pages_html = getPagesHtml(pageNumber, pageSize, totalNotes);
                     pages_title.prepend(pages_html);
                     $.each(notes, function(key, note){
-                        notes_html += "<tr><td style='color: blue; text-decoration: underline'>N" + note.id + "</td><td>" +
-                        note.containerNumber + "</td><td>" + note.outDepartment + "</td><td>" + note.sendTime + "</td><td>" + note.toDepartment  + "</td><td>" +
-                        note.arriveTime  + "</td><td>" + note.delayTime + "</td><td>" + note.sendNote + "</td><td>" + note.arriveNote + "</td></tr>";
+                        notes_html += "<tr><td style='color: blue; text-decoration: underline'>N" + note.id + "</td><td>" + note.containerNumber + "</td><td>" +
+                        note.outDepartment + "</td><td style='text-align: center;'>" + note.sendTime + "</td><td>" + note.toDepartment  + "</td><td style='text-align: center;'>" +
+                        note.arriveTime  + "</td><td style='text-align: center;'>" + note.delayTime + "</td><td>" + note.sendNote + "</td><td>" + note.arriveNote + "</td></tr>";
                     });
                     table_body.prepend(notes_html);
                 }
@@ -450,7 +527,7 @@ $(document).ready(function(){
             method: 'POST',
             dataType: 'json',
             data: {startDate: $('#startDate').val(), endDate: $('#endDate').val(), pageNumber: pageNumber,
-                    containerId: $('#select_container').val(), pageSize: pageSize},
+                    containerId: $('#container_id').val(), pageSize: pageSize},
             success: function(notes) {
                 if(notes!=null && notes.length>0){
                     let pages_title = $('#route_pages_title');
@@ -475,95 +552,104 @@ $(document).ready(function(){
 
     $('#notes_table_body').on('click', function(event){
         let elem = event.target || event.srcElement;
-        let noteLine = elem.innerHTML;
-        let pos = noteLine.indexOf("/");
-        if(pos>0){
-            let noteId = noteLine.substring(0, pos-1);
-            let validNumber = /^[0-9]+$/;
-            $('#changePay').css("display", "none");
-            $('#changeToBranch').css("display", "none");
-            $('#changeToDepartment').css("display", "none");
-            $('#changeNote').css("display", "none");
-            $('#changeArriveNote').css("display", "none");
-            $('#changeBetweenNote').css("display", "none");
-            $('#changeButton').css("display", "none");
-            $('#changeArriveButton').css("display", "none");
-            $('#changeBetweenButton').css("display", "none");
-            $('#inputSendNote').val("");
-            $('#inputPay').val("0");
-            $('#inputArriveNote').val("");
-            $('#inputBetweenNote').val("");
-            if(validNumber.test(noteId)){
-                $.ajax({
-                    url: '../user/load-data/note',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {noteId: noteId},
-                    success: function(containerNote) {
-                        $('#show_note').css("display", "block");
-                        $('#outDepartmentId').val(containerNote.outDepartmentId);
-                        $('#toDepartmentId').val(containerNote.toDepartmentId);
-                        $('#outUserId').val(containerNote.outUserId);
-                        $('#toUserId').val(containerNote.toUserId);
-                        $('#containerNoteId').text(containerNote.id);
-                        $('#containerNumber').text(containerNote.containerNumber);
-                        $('#thermometer').text(containerNote.thermometer);
-                        $('#outDepartment').html(containerNote.outDepartment);
-                        $('#sendTime').html(containerNote.sendTime);
-                        $('#outUser').html(containerNote.outUser);
-                        $('#sendNote').html(containerNote.sendNote);
-                        $('#sendPay').html(containerNote.sendPay + "  тенге");
-                        $('#toDepartment').html(containerNote.toDepartment);
-                        $('#arriveTime').html(containerNote.arriveTime);
-                        $('#toUser').html(containerNote.toUser);
-                        $('#status').html(containerNote.status);
-                        $('#arriveNote').html(containerNote.arriveNote);
-                        var arriveDate = containerNote.arriveTime;
-                        comparingDate(arriveDate);
-                        var status = containerNote.status;
-                        if(status.indexOf("В дороге")==0){
-                            if($('#department_id').val() == $('#outDepartmentId').val()){
-                                $('#changePay').css("display", "table-row");
-                                $('#changeToBranch').css("display", "table-row");
-                                $('#changeToDepartment').css("display", "table-row");
-                                $('#changeNote').css("display", "table-row");
-                                $('#changeButton').css("display", "table-row");
-                                $('#select_change_branch').trigger("change");
-                            }
-                        }
-                        let points_body = $('#points_table_body');
-                        let points_html = "";
-                        points_body.html('');
-                        let passPoints = containerNote.betweenPoints;
-                        if(passPoints!=null && passPoints.length>0){
-                            let betweenDepartmentId;
-                            let departmentId = $('#department_id').val();
-                            $.each(passPoints, function(key, point){
-                                points_html += "<tr><td>" + point.departmentName + "</td><td>" + point.passTime +
-                                        "</td><td>" + point.passUser + "</td><td>" + point.passNote + "</td></tr>";
-                                betweenDepartmentId = point.departmentId;
-                                if(status.indexOf("В дороге")==0 && betweenDepartmentId == departmentId){
-                                    $('#changeBetweenNote').css("display", "table-row");
-                                    $('#changeBetweenButton').css("display", "table-row");
-                                    $('#passUserId').val(point.passUserId);
+        let prev = elem.previousElementSibling;
+        if(prev!=null){
+            let noteLine = prev.innerHTML;
+            let pos = noteLine.indexOf("/");
+            if(pos>0){
+                let noteId = noteLine.substring(0, pos);
+                let validNumber = /^[0-9]+$/;
+                $('#changePay').css("display", "none");
+                $('#changeToBranch').css("display", "none");
+                $('#changeToDepartment').css("display", "none");
+                $('#changeNote').css("display", "none");
+                $('#changeArriveNote').css("display", "none");
+                $('#changeBetweenNote').css("display", "none");
+                $('#changeButton').css("display", "none");
+                $('#changeArriveButton').css("display", "none");
+                $('#changeBetweenButton').css("display", "none");
+                $('#inputSendNote').val("");
+                $('#inputPay').val("0");
+                $('#inputArriveNote').val("");
+                $('#inputBetweenNote').val("");
+                if(validNumber.test(noteId)){
+                    $.ajax({
+                        url: '../user/load-data/note',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {noteId: noteId},
+                        success: function(containerNote) {
+                            $('#show_note').css("display", "block");
+                            $('#outDepartmentId').val(containerNote.outDepartmentId);
+                            $('#toDepartmentId').val(containerNote.toDepartmentId);
+                            $('#outUserId').val(containerNote.outUserId);
+                            $('#toUserId').val(containerNote.toUserId);
+                            $('#containerNoteId').text(containerNote.id);
+                            $('#containerNumber').text(containerNote.containerNumber);
+                            $('#thermometer').text(containerNote.thermometer);
+                            $('#outDepartment').html(containerNote.outDepartment);
+                            $('#sendTime').html(containerNote.sendTime);
+                            $('#outUser').html(containerNote.outUser);
+                            $('#sendNote').html(containerNote.sendNote);
+                            $('#inputSendNote').val(containerNote.sendNote);
+                            $('#paidEnd').html(containerNote.paidEnd);
+                            $('#sendPay').html(containerNote.sendPay + "  тенге");
+                            $('#inputPay').val(containerNote.sendPay);
+                            $('#toDepartment').html(containerNote.toDepartment);
+                            $('#arriveTime').html(containerNote.arriveTime);
+                            $('#toUser').html(containerNote.toUser);
+                            $('#status').html(containerNote.status);
+                            $('#arriveNote').html(containerNote.arriveNote);
+                            var arriveDate = containerNote.arriveTime;
+                            comparingDate(arriveDate, containerNote.paidEnd);
+                            var status = containerNote.status;
+                            if(status.indexOf("В дороге")==0){
+                                if($('#department_id').val() == $('#outDepartmentId').val()){
+                                    if(containerNote.paidEnd == "при отгрузке"){
+                                        $('#changePay').css("display", "table-row");
+                                    }
+                                    $('#changeToBranch').css("display", "table-row");
+                                    $('#changeToDepartment').css("display", "table-row");
+                                    $('#changeNote').css("display", "table-row");
+                                    $('#changeButton').css("display", "table-row");
+                                    $('#select_change_branch').val(containerNote.toBranchId);
+                                    $('#select_change_branch').trigger("change");
                                 }
-                            });
-                        } else {
-                            points_html = "<tr><td colspan='5'>Нет промежуточных объектов регистрации</td></tr>";
+                            }
+                            let points_body = $('#points_table_body');
+                            let points_html = "";
+                            points_body.html('');
+                            let passPoints = containerNote.betweenPoints;
+                            if(passPoints!=null && passPoints.length>0){
+                                let betweenDepartmentId;
+                                let departmentId = $('#department_id').val();
+                                $.each(passPoints, function(key, point){
+                                    points_html += "<tr><td>" + point.departmentName + "</td><td style='text-align: center;'>" + point.passTime +
+                                            "</td><td>" + point.passUser + "</td><td>" + point.passNote + "</td></tr>";
+                                    betweenDepartmentId = point.departmentId;
+                                    if(status.indexOf("В дороге")==0 && betweenDepartmentId == departmentId){
+                                        $('#changeBetweenNote').css("display", "table-row");
+                                        $('#changeBetweenButton').css("display", "table-row");
+                                        $('#passUserId').val(point.passUserId);
+                                    }
+                                });
+                            } else {
+                                points_html = "<tr><td colspan='5'>Нет промежуточных объектов регистрации</td></tr>";
+                            }
+                            points_body.prepend(points_html);
+                            $("tr[tabindex=0]").focus();
+                       },
+                        error:  function(response) {
+                            $('#result_line').html("Ошибка обращения в базу даннных. Перегрузите страницу.");
+                            $('#show_note').css("display", "none");
                         }
-                        points_body.prepend(points_html);
-                        $("tr[tabindex=0]").focus();
-                   },
-                    error:  function(response) {
-                        $('#result_line').html("Ошибка обращения в базу даннных. \nДля получения информации о движении термоконтейнера кликните по ячейке с номером.");
-                        $('#show_note').css("display", "none");
-                    }
-                });
+                    });
+                }
             }
         }
     });
 
-    function comparingDate(arriveTime){
+    function comparingDate(arriveTime, paidEnd){
         let point = arriveTime.indexOf(".");
         let arriveDay = arriveTime.substring(0, point);
         arriveTime = arriveTime.substring(point+1);
@@ -583,6 +669,9 @@ $(document).ready(function(){
             if($('#department_id').val() == $('#toDepartmentId').val()){
                 $('#changeArriveNote').css("display", "table-row");
                 $('#changeArriveButton').css("display", "table-row");
+                if(paidEnd == "при получении"){
+                    $('#changePay').css("display", "table-row");
+                }
             }
         }
     };
@@ -590,6 +679,7 @@ $(document).ready(function(){
     $('#btn_search').on('click', function(){
         let validNumber = /^[0-9]+$/;
         let containerNumber = $('#container_number').val();
+        $('#line_cut_note').click();;
         $('#journal_pages_title').html('');
         $('#notes_table_body').html('');
         if(containerNumber.length>0 && validNumber.test(containerNumber)){
@@ -600,14 +690,15 @@ $(document).ready(function(){
                 dataType: 'json',
                 data: {findNumber: containerNumber, endDate: $('#endDate').val()},
                 success: function(notes) {
+                    $('#btn_export_excel').css("display", "none");
                     $('#btn_search').css("display", "block");
                     let notes_html = "";
                     let table_body = $('#notes_table_body');
                     if(notes!=null && notes.length>0){
                         $.each(notes, function(key, note){
-                            notes_html += "<tr><td style='color: blue; text-decoration: underline'>" + note.id + " / " + note.containerNumber +
-                            "</td><td>" + note.thermometer + "</td><td>" + note.sendTime + "</td><td>" + note.arriveTime + "</td><td>" +
-                            note.outDepartment  + "</td><td>" + note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
+                            notes_html += "<tr><td style='text-align: end;'><span style='color: white'>" + note.id + "/</span><span style='color: blue; text-decoration: underline'>" +
+                            note.containerNumber + "</span></td><td style='width: 10%; text-align: end; padding-end: 20px;'>" + note.thermometer + "</td><td style='text-align: center;'>" +
+                            note.sendTime + "</td><td style='text-align: center;'>" + note.arriveTime + "</td><td>" + note.outDepartment  + "</td><td>" + note.toDepartment  + "</td><td>" + note.status + "</td></tr>";
                         });
                         table_body.prepend(notes_html);
                     } else {
@@ -647,7 +738,7 @@ $(document).ready(function(){
                     let passPoints = containerNote.betweenPoints;
                     if(passPoints!=null && passPoints.length>0){
                         $.each(passPoints, function(key, point){
-                            points_html += "<tr><td>" + point.departmentName + "</td><td>" + point.passTime +
+                            points_html += "<tr><td>" + point.departmentName + "</td><td style='text-align: center;'>" + point.passTime +
                                     "</td><td>" + point.passUser + "</td><td>" + point.passNote + "</td></tr>";
                         });
                     } else {
@@ -656,7 +747,7 @@ $(document).ready(function(){
                     points_body.prepend(points_html);
                },
                 error:  function(response) {
-                    $('#result_line').html("Ошибка обращения в базу даннных. \nДля получения информации о движении термоконтейнера кликните по ячейке с номером.");
+                    $('#result_line').html("Ошибка обращения в базу даннных. <br>Для получения информации о движении термоконтейнера кликните по ячейке с номером.");
                     show_points.style.display = "none";
                 }
             });
@@ -684,7 +775,7 @@ $(document).ready(function(){
                     let passPoints = containerNote.betweenPoints;
                     if(passPoints!=null && passPoints.length>0){
                         $.each(passPoints, function(key, point){
-                            points_html += "<tr><td>" + point.departmentName + "</td><td>" + point.passTime +
+                            points_html += "<tr><td>" + point.departmentName + "</td><td  style='text-align: center;'>" + point.passTime +
                                     "</td><td>" + point.passUser + "</td><td>" + point.passNote + "</td></tr>";
                         });
                     } else {
@@ -693,7 +784,7 @@ $(document).ready(function(){
                     points_body.prepend(points_html);
                },
                 error:  function(response) {
-                    $('#result_line').html("Ошибка обращения в базу даннных. \nДля получения информации о движении термоконтейнера кликните по ячейке с номером.");
+                    $('#result_line').html("Ошибка обращения в базу даннных. <br>Для получения информации о движении термоконтейнера кликните по ячейке с номером.");
                     show_route_points.style.display = "none";
                 }
             });
@@ -726,8 +817,8 @@ $(document).ready(function(){
                         $('#status').text(parcel.status);
                         let points = parcel.parcelPoints;
                         $.each(points, function(key, point){
-                            points_html += "<tr><td style='font-weight: bold;'>" + point.departmentName + "</td><td>" +
-                            point.arriveTime + "</td><td>" + point.intoUser + "</td><td>" + point.sendTime  + "</td><td>" +
+                            points_html += "<tr><td style='font-weight: bold;'>" + point.departmentName + "</td><td style='text-align: center;'>" +
+                            point.arriveTime + "</td><td>" + point.intoUser + "</td><td style='text-align: center;'>" + point.sendTime  + "</td><td>" +
                             point.outUser  + "</td><td>" + point.parent + "</td><td>" + point.payment + " тг</td><td>" + point.text + "</td></tr>";
                         });
                         table_body.prepend(points_html);
@@ -753,7 +844,7 @@ $(document).ready(function(){
         let currentRow = $('#journal_pages_title').text();
         let pageNumber = getPageNumber(totalNotes, pageSize, cellContent, currentRow);
         let departmentId = $('#department_id').val();
-        if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
+        if($('#department_id').val()==1 && $('#all_checkbox').is(':checked')==false){
             departmentId = $('#select_department').val();
         }
         showNotesPage(pageNumber, departmentId);
@@ -847,8 +938,13 @@ $(document).ready(function(){
         let pageNumber = getPageNumber(totalPayments, pageSize, cellContent, currentRow);
         let branchId = $('#branch_id').val();
         let departmentId = $('#department_id').val();
-        if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
-            departmentId = $('#select_department').val();
+        if(departmentId==1){
+            if($('#all_checkbox').is(':checked')==false){
+                branchId = $('#select_branch').val();
+                if($('#branch_checkbox').is(':checked')==false){
+                    departmentId = $('#select_department').val();
+                }
+            }
         }
         showPaymentsPage(pageNumber, departmentId, branchId);
     });
@@ -862,7 +958,7 @@ $(document).ready(function(){
          let pageNumber = getPageNumber(totalParcels, pageSize, cellContent, currentRow);
          let branchId = $('#branch_id').val();
          let departmentId = $('#department_id').val();
-         if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
+         if(departmentId == 1 && $('#all_checkbox').is(':checked')==false){
              departmentId = $('#select_department').val();
          }
          if(departmentId!=1){
@@ -880,7 +976,7 @@ $(document).ready(function(){
         let currentRow = $('#delay_pages_title').text();
         let pageNumber = getPageNumber(totalNotes, pageSize, cellContent, currentRow);
         let departmentId = $('#department_id').val();
-        if($('#select_department').val()!=null && $('#department_checkbox').is(':checked')==false){
+        if(departmentId == 1 && $('#all_checkbox').is(':checked')==false){
             departmentId = $('#select_department').val();
         }
         showDelayPage(pageNumber, departmentId)
@@ -971,7 +1067,7 @@ $(document).ready(function(){
                     let pages_html = getPagesHtml(pageNumber, pageSize, totalLogs);
                     pages_title.prepend(pages_html);
                     $.each(logs, function(key, log){
-                        logs_html += "<tr><td style='color: blue; text-decoration: underline'>" + log.id + "</td><td>" +
+                        logs_html += "<tr><td style='color: blue; text-decoration: underline'>" + log.id + "</td><td style='text-align: center;'>" +
                         log.time + "</td><td>" + log.branch + "</td><td>" + log.department  + "</td><td>" + log.target  +
                         "</td><td>" + log.oldValue + "</td><td>" + log.newValue + "</td><td>" + log.editor + "</td></tr>";
                     });
@@ -986,16 +1082,20 @@ $(document).ready(function(){
     }
 
     $('#btn_export_excel').on('click', function(){
-        let departmentId = $('#department_id').val();
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
-                departmentId = $('#select_department').val();
+        if($('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            let departmentId = $('#department_id').val();
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    departmentId = $('#select_department').val();
+                }
             }
+            $('#exportDepartmentId').val(departmentId);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
+            $('#export_excel').submit();
         }
-        $('#exportDepartmentId').val(departmentId);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
-        $('#export_excel').submit();
     });
 
     $('#btn_export_log').on('click', function(){
@@ -1010,70 +1110,76 @@ $(document).ready(function(){
     });
 
     $('#btn_export_payment').on('click', function(){
-        let departmentId = $('#department_id').val();
-        let branchId = $('#branch_id').val();
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
-                departmentId = $('#select_department').val();
-                branchId = $('#select_branch').val();
+        if($('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            let departmentId = $('#department_id').val();
+            let branchId = $('#branch_id').val();
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    departmentId = $('#select_department').val();
+                    branchId = $('#select_branch').val();
+                }
             }
+            $('#exportDepartmentId').val(departmentId);
+            $('#exportBranchId').val(branchId);
+            $('#export_payment').attr('action', 'payment/containers-exportExcel');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
+            $('#export_payment').submit();
         }
-        $('#exportDepartmentId').val(departmentId);
-        $('#exportBranchId').val(branchId);
-        $('#export_payment').attr('action', 'payment/containers-exportExcel');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
-        $('#export_payment').submit();
     });
 
     $('#btn_export_parcels').on('click', function(){
-        let departmentId = $('#department_id').val();
-        let branchId = $('#branch_id').val();
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
-                departmentId = $('#select_department').val();
-                branchId = $('#select_branch').val();
+        if($('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            let departmentId = $('#department_id').val();
+            let branchId = $('#branch_id').val();
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    departmentId = $('#select_department').val();
+                    branchId = $('#select_branch').val();
+                }
             }
+            $('#exportDepartmentId').val(departmentId);
+            $('#exportBranchId').val(branchId);
+            $('#export_payment').attr('action', 'payment/parcels-exportExcel');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
+            $('#export_payment').submit();
         }
-        $('#exportDepartmentId').val(departmentId);
-        $('#exportBranchId').val(branchId);
-        $('#export_payment').attr('action', 'payment/parcels-exportExcel');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
-        $('#export_payment').submit();
     });
 
     $('#btn_export_delay').on('click', function(){
-        var departmentId = $('#department_id').val();
-        if(departmentId==1){
-            if($('#department_checkbox').is(':checked')==false && $('#select_department').val()!=null){
-                departmentId = $('#select_department').val();
+        if($('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            var departmentId = $('#department_id').val();
+            if(departmentId==1){
+                if($('#all_checkbox').is(':checked')==false){
+                    departmentId = $('#select_department').val();
+                }
             }
+            $('#exportDepartmentId').val(departmentId);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
+            $('#export_delay').submit();
         }
-        $('#exportDepartmentId').val(departmentId);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
-        $('#export_delay').submit();
     });
 
     $('#btn_export_route').on('click', function(){
-        var containerId = $('#select_container').val();
-        $('#container_id').val(containerId);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
-        $('#export_route').submit();
-    });
-
-    $('#container_clean').on('click', function(){
-        $('#container_number').val("");
-        $('#routeContainerNumber').text("");
-        $('#containerValue').text("");
-        $('#registrationDate').text("");
-        $('#containerDepartment').text("");
-        $('#route_pages_title').html("");
-        $('#route_table_body').html("");
-        $('#show_route_points').css({display: "none"});
-        $('#select_container').val("0");
+        if($('#all_checkbox').is(':checked')==false && $('#select_branch').val()==0){
+             $('#result_line').html("Выберите филиал или отметьте все объекты");
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if($('#container_id').val()>0){
+                $('#result_line').html("Ожидайте завершение выборки и скачивания данных.");
+                $('#export_route').submit();
+            } else {
+                $('#result_line').html("Внесите номер термоконтейнера.");
+            }
+        }
     });
 
     $('#select_container').on('change', function(){
@@ -1081,24 +1187,107 @@ $(document).ready(function(){
         $('#route_pages_title').html("");
         $('#route_table_body').html("");
         $('#show_route_points').css({display: "none"});
+        loadContainer($('#container_number').val());
+    });
+
+    let container_list = new Array();
+    let numbers_length = 0;
+
+    $('#container_number').on('input', function(){
+        let container_number = $('#container_number').val();
+        if(container_number.length<4){
+            numbers_length = container_number.length;
+            $('#select_container').css("display", "none");
+        } else if(container_number.length==4){
+            getContainers(container_number);
+            numbers_length = container_number.length;
+        } else if(container_number.length==8){
+            loadContainer(container_number);
+        } else {
+            if(container_number.length < numbers_length){
+                getContainers(container_number);
+            } else {
+                for(let i=0; i<container_list.length; i++){
+                    let container = container_list[i];
+                    const index = container.containerNumber.indexOf(container_number);
+                    if(index<0){
+                        container_list.splice(i, 1);
+                        i--;
+                    }
+                }
+                loadSelect(container_list);
+            }
+            numbers_length = container_number.length;
+        }
+    });
+
+    function loadContainer(container_number){
+            $.ajax({
+                url: '../user/load-data/container',
+                method: 'POST',
+                dataType: 'json',
+                data: {containerNumber: container_number},
+                success: function(container) {
+                    let containerId = 0 + container.id;
+                    $('#container_id').val(containerId);
+                    $('#routeContainerNumber').text(container.containerNumber);
+                    $('#containerValue').text(container.value);
+                    $('#registrationDate').text(container.registrationDate);
+                    $('#containerDepartment').text(container.departmentName + ", " + container.branchName);
+                },
+                error:  function(response) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+                }
+            });
+    }
+
+    function getContainers(container_number){
         $.ajax({
-            url: '../user/load-data/container',
+            url: '../user/load-data/containers',
             method: 'POST',
             dataType: 'json',
-            data: {containerId: $('#select_container').val()},
-            success: function(container) {
-                $('#routeContainerNumber').text(container.containerNumber);
-                $('#containerValue').text(container.value);
-                $('#registrationDate').text(container.registrationDate);
-                $('#containerDepartment').text(container.departmentName + ", " + container.branchName);
+            data: {containerNumber: container_number},
+            success: function(containers) {
+                container_list = containers;
+                if(containers!=null && containers.length>0){
+                    $('#select_container').css("display", "block");
+                    loadSelect(container_list);
+                }
             },
             error:  function(response) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
             }
         });
-    });
+    }
 
+    function loadSelect(container_list){
+        $('#select_container').empty();
+        $('#select_container').append($("<option></option>").attr("value", 0).text("Выберите из списка"));
+        $.each(container_list, function(key, container){
+            $('#select_container').append($("<option></option>").attr("value", key).text(container.containerNumber));
+        });
+//        for(let i=0; i<container_list.length; i++){
+//            let container = container_list[i];
+//            let key = container.id;
+//            let value = container.containerNumber;
+//            $('#select_container').append($("<option></option>").attr("value", key).text(value));
+//        }
+    }
+
+        $('#container_clean').on('click', function(){
+            $('#container_number').val("");
+            $('#routeContainerNumber').text("");
+            $('#containerValue').text("");
+            $('#registrationDate').text("");
+            $('#containerDepartment').text("");
+            $('#route_pages_title').html("");
+            $('#route_table_body').html("");
+            $('#show_route_points').css({display: "none"});
+            $('#select_container').css({display: "none"});
+            $('#container_id').val(0);
+        });
 
 });
 
