@@ -12,9 +12,12 @@ public class BranchSerializer implements JsonSerializer<Branch> {
     @Override
     public JsonElement serialize(Branch branch, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject jObject = new JsonObject();
-        jObject.addProperty("id", branch.getId());
-        jObject.addProperty("branchName", branch.getBranchName());
-        jObject.addProperty("companyId", branch.getCompany().getId());
+        if(branch!=null) {
+            jObject.addProperty("id", branch.getId());
+            jObject.addProperty("branchName", branch.getBranchName());
+            jObject.addProperty("companyId", branch.getCompany().getId());
+            jObject.addProperty("hasLabor", branch.getCompany().isLabor());
+        }
         return jObject;
     }
 

@@ -25,8 +25,5 @@ public class BetweenPointService {
             return true;
         }
     }
-    public List<BetweenPoint> getAllPointsByNoteId(Long containerNoneId){
-        return pointRepository.findAllByContainerNoteId(containerNoneId);
-    }
 
 }

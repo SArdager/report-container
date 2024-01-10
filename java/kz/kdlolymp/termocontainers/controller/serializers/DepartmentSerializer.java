@@ -12,10 +12,12 @@ public class DepartmentSerializer implements JsonSerializer<Department> {
     @Override
     public JsonElement serialize(Department department, Type type, JsonSerializationContext context) {
         JsonObject jObject = new JsonObject();
-        jObject.addProperty("departmentId", department.getId());
-        jObject.addProperty("departmentName", department.getDepartmentName());
-        jObject.addProperty("branchId", department.getBranch().getId());
-        jObject.addProperty("branchName", department.getBranch().getBranchName());
+        if(department!=null) {
+            jObject.addProperty("id", department.getId());
+            jObject.addProperty("departmentName", department.getDepartmentName());
+            jObject.addProperty("branchId", department.getBranch().getId());
+            jObject.addProperty("branchName", department.getBranch().getBranchName());
+        }
         return jObject;
     }
 }

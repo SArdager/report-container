@@ -9,6 +9,9 @@ import java.util.List;
 @Component
 public interface DepartmentRepository extends JpaRepository<Department, Integer> {
     Department findDepartmentById (int id);
+    Department findDepartmentByDepartmentNameAndBranchId (String departmentName, int branchId);
     List<Department> findAllByBranchId(int branchId);
+
+
 
 }

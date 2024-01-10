@@ -6,8 +6,8 @@ import javax.persistence.*;
 @Table(name="container_values")
 public class ContainerValue {
     @Id
+    @Column(columnDefinition = "serial", name = "value_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "value_id")
     private Integer id;
     @Column(name = "value_name")
     private String valueName;

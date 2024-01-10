@@ -1,7 +1,7 @@
 package kz.kdlolymp.termocontainers.service;
 
 import kz.kdlolymp.termocontainers.entity.AlarmGroup;
-import kz.kdlolymp.termocontainers.entity.ContainerNote;
+import kz.kdlolymp.termocontainers.entity.Department;
 import kz.kdlolymp.termocontainers.entity.User;
 import kz.kdlolymp.termocontainers.repositories.AlarmGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,10 @@ import java.util.List;
 public class AlarmGroupService {
     @Autowired
     private AlarmGroupRepository alarmGroupRepository;
+    @Autowired
+    private DepartmentService departmentService;
+    @Autowired
+    private DefaultEmailService emailService;
     @Autowired
     private EntityManager manager;
 
@@ -50,7 +54,7 @@ public class AlarmGroupService {
         List<User> users = new ArrayList<>();
         try {
             AlarmGroup alarmGroup = manager.createQuery("SELECT ag FROM AlarmGroup ag JOIN FETCH ag.users WHERE ag.id = :paramId"
-                    , AlarmGroup.class).setParameter("paramId", id).getSingleResult();
+                    , AlarmGroup.class).setParameter("paramId", id).setMaxResults(1).getSingleResult();
             if(alarmGroup!=null){
                 users = alarmGroup.getUsers();
             }
@@ -86,8 +90,7 @@ public class AlarmGroupService {
         if(users!=null && users.size()>0){
             for(int i=0; i<users.size(); i++){
                 User userFromList = users.get(i);
-                if(userFromList.getId()==user.getId()){
-                } else{
+                if(userFromList.getId()!=user.getId()){
                     newUsersList.add(userFromList);
                 }
             }
@@ -101,5 +104,23 @@ public class AlarmGroupService {
         }
     }
 
+    public List<User> getAlarmUsersByDepartmentId(int departmentId){
+        List<User> users = new ArrayList<>();
+        Department department = departmentService.findDepartmentById(departmentId);
+        try {
+            AlarmGroup alarmGroup = manager.createQuery("SELECT ag FROM AlarmGroup ag JOIN FETCH ag.users WHERE ag.branchId = :paramBranch",
+                    AlarmGroup.class).setParameter("paramBranch", department.getBranch().getId()).setMaxResults(1).getSingleResult();
+            if(alarmGroup!=null){
+                users = alarmGroup.getUsers();
+            } else{
+                String messageToAdmin = "Система учета термоконтейнеров сообщает, что отсутствует группа оповещения по позднему прибытию термоконтейнеров\n" +
+                        "на объекте: " + department.getDepartmentName() + ", " + department.getBranch().getBranchName() + "." +
+                        "\nЕсли сообщение попало к вам по ошибке, игнорируйте это сообщение.\n" +
+                        "Не следует отвечать на это сообщение. \n\nС уважением,\nСлужба поддержки системы учета термоконтейнеров";
+                emailService.sendMessageToAdmin(messageToAdmin);
+            }
+        } catch (NoResultException ex){}
+        return users;
+    }
 
 }

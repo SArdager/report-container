@@ -7,8 +7,8 @@ import java.io.Serializable;
 @Table(name = "user_rights")
 public class UserRights implements Serializable {
     @Id
+    @Column(columnDefinition = "serial", name = "rights_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rights_id")
     private Integer id;
     @ManyToOne()
     @JoinColumn(name = "department_id")
@@ -20,13 +20,6 @@ public class UserRights implements Serializable {
     private User user;
 
     public UserRights() {}
-
-    public UserRights(Integer id, Department department, String rights, User user) {
-        this.id = id;
-        this.department = department;
-        this.rights = rights;
-        this.user = user;
-    }
 
     public Integer getId() {return id;}
 

@@ -8,8 +8,8 @@ import java.util.List;
 @Table(name = "alarm_groups")
 public class AlarmGroup implements Serializable {
     @Id
+    @Column(columnDefinition = "serial", name = "alarm_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "alarm_id")
     private Integer id;
     @Column(name = "alarm_group_name")
     private String alarmGroupName;
@@ -20,6 +20,8 @@ public class AlarmGroup implements Serializable {
             name="alarm_users",
             joinColumns = @JoinColumn(name = "alarm_group_id"))
     private List<User> users;
+    @Column(name="branch_id")
+    private int branchId;
 
     public AlarmGroup() {
     }
@@ -27,6 +29,10 @@ public class AlarmGroup implements Serializable {
     public Integer getId() {return id;}
 
     public void setId(Integer id) {this.id = id;}
+
+    public int getBranchId() {return branchId;}
+
+    public void setBranchId(int branchId) {this.branchId = branchId;}
 
     public String getAlarmGroupName() {return alarmGroupName;}
 

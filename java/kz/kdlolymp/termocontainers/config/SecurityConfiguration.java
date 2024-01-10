@@ -15,10 +15,12 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import java.util.Properties;
 
@@ -50,12 +52,16 @@ public class SecurityConfiguration {
                 .loginPage("/login")
                 .permitAll()
                 .successHandler(changeTemporaryPasswordAuthenticationHandler())
-//                .defaultSuccessUrl("/work-starter")
+//                .defaultSuccessUrl("work-starter")
             .and()
                 .logout()
                 .permitAll()
-                .logoutSuccessUrl("/");
-//            .and()
+                .logoutSuccessUrl("/")
+            .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                .maximumSessions(1)
+                .expiredUrl("/login");
 //                .addFilter(securityContextHolderAwareRequestFilter())
 //                .addFilterAfter(securityContextHolderAwareRequestFilter(), UsernamePasswordAuthenticationFilter.class)
 //                .addFilterBefore(securityContextHolderAwareRequestFilter(), AnonymousAuthenticationFilter.class);
@@ -64,6 +70,7 @@ public class SecurityConfiguration {
 //                .authenticationProvider(customAuthenticationProvider());
         return http.build();
     }
+
 
     @Autowired
     protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -81,6 +88,11 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationSuccessHandler changeTemporaryPasswordAuthenticationHandler(){
         return new ChangeTemporaryPasswordAuthenticationHandler();
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 //    @Bean
 //    public SecurityContextHolderAwareRequestFilter securityContextHolderAwareRequestFilter() {
@@ -108,7 +120,6 @@ public class SecurityConfiguration {
 //            .password(passwordEncoder().encode((CharSequence)"cdlOlymp21"))
 //            .roles("ADMIN")
 //            .build();
-//        System.out.println("SecurityConfiguration, InMemoryUserDetailsManager: " + user.getUsername() + "/" + user.getAuthorities().toString());
 //        return new InMemoryUserDetailsManager(user);
 //    }
 
@@ -120,7 +131,6 @@ public class SecurityConfiguration {
 //
 //    @Bean
 //    public CustomAuthenticationProvider customAuthenticationProvider(){
-//        System.out.println("SecurityConfiguration, customAuthenticationProvider");
 //        CustomAuthenticationProvider provider = new CustomAuthenticationProvider();
 //        return provider;
 //    }
@@ -150,7 +160,7 @@ public class SecurityConfiguration {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
+        props.put("mail.debug", "false");
         props.put("mail.smtp.ssl.trust", "smtp.kdlolymp.kz");
 //        props.put("mail.smtp.socketFactory.port", "25");
 //        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");

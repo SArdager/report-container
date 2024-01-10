@@ -8,8 +8,8 @@ import java.io.Serializable;
 public class Department implements Serializable {
 
     @Id
+    @Column(columnDefinition = "serial", name = "department_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "department_id")
     private Integer id;
     @Column(name = "department_name")
     private String departmentName;

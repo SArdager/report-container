@@ -12,6 +12,8 @@ public class ContainerValueService {
 
     @Autowired
     private ContainerValueRepository valueRepository;
+    @Autowired
+    private ContainerNoteService containerNoteService;
 
     public List<ContainerValue> findAll(){
         return valueRepository.findAll();
@@ -19,6 +21,10 @@ public class ContainerValueService {
 
     public ContainerValue findByValueName(String valueName){
         return valueRepository.findContainerValueByValueName(valueName);
+    }
+    public boolean saveValue(ContainerValue value){
+        valueRepository.save(value);
+        return true;
     }
     public boolean addNewValue(ContainerValue value){
         ContainerValue valueFromDb = findByValueName(value.getValueName());

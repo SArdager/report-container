@@ -9,8 +9,7 @@ import java.util.List;
 @Component
 public interface TimeStandardRepository extends JpaRepository<TimeStandard, Integer> {
 
-    TimeStandard findTimeStandardById(int timeStandardId);
-    List<TimeStandard> findAllByProbeId(int probeId);
+    TimeStandard findById(int timeStandardId);
     List<TimeStandard> findAllByFirstPointId(int firstPointId);
 
 }

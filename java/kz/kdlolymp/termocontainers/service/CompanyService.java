@@ -22,7 +22,10 @@ public class CompanyService {
     public Company findCompanyByCompanyName(String companyName){
         return companyRepository.findCompanyByCompanyName(companyName);
     }
-    public boolean addCNewCompany(Company company){
+    public Company findCompanyById(int companyId){
+        return companyRepository.findCompanyById(companyId);
+    }
+    public boolean addNewCompany(Company company){
         Company companyFromDb = findCompanyByCompanyName(company.getCompanyName());
         if(companyFromDb!=null){
             return  false;
@@ -35,12 +38,21 @@ public class CompanyService {
     public List<Company> findAll() {
         return companyRepository.findAll();
     }
-    public void deleteCompany(int id){
+
+    public boolean deleteCompany(int id){
         Company company = companyRepository.findCompanyById(id);
         List<Branch> branches = company.getBranches();
+        boolean isExistNote = false;
         for(Branch branch: branches){
-            branchService.deleteBranch(branch.getId());
+            if(!branchService.deleteBranch(branch.getId())){
+                isExistNote = true;
+            }
         }
-        companyRepository.delete(company);
+        if(isExistNote){
+            return false;
+        } else {
+            companyRepository.delete(company);
+            return true;
+        }
     }
 }

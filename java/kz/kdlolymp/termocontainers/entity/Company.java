@@ -14,6 +14,8 @@ public class Company implements Serializable {
     private Integer id;
     @Column(name = "company_name")
     private String companyName;
+    @Column(name = "is_labor")
+    private boolean isLabor;
 
     @OneToMany(targetEntity = Branch.class, cascade = CascadeType.ALL,
             fetch = FetchType.LAZY, mappedBy = "company")
@@ -31,6 +33,10 @@ public class Company implements Serializable {
     public void setCompanyName(String companyName) { this.companyName = companyName; }
 
     public List<Branch> getBranches() {return branches;}
+
+    public boolean isLabor() {return isLabor;}
+
+    public void setLabor(boolean labor) {isLabor = labor;}
 
     public void setBranches(List<Branch> branches) {
         this.branches = branches;

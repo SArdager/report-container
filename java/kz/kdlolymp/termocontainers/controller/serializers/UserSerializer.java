@@ -14,22 +14,19 @@ public class UserSerializer implements JsonSerializer<User>{
     @Override
     public JsonElement serialize(User user, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject jObject = new JsonObject();
-        jObject.addProperty("id", user.getId());
-        jObject.addProperty("userSurname", user.getUserSurname());
-        jObject.addProperty("userFirstname", user.getUserFirstname());
-        jObject.addProperty("username", user.getUsername());
-        jObject.addProperty("position", user.getPosition());
-        jObject.addProperty("email", user.getEmail());
-        jObject.addProperty("departmentId", user.getDepartmentId());
-        if(user.getCurator()!=null) {
-            jObject.addProperty("curatorId", user.getCurator().getId());
-            jObject.addProperty("curatorName", user.getCurator().getUserSurname() + " " + user.getCurator().getUserFirstname());
-        } else {
-            jObject.addProperty("curatorId", 0);
+        if(user!=null) {
+            jObject.addProperty("id", user.getId());
+            jObject.addProperty("userSurname", user.getUserSurname());
+            jObject.addProperty("userFirstname", user.getUserFirstname());
+            jObject.addProperty("username", user.getUsername());
+            jObject.addProperty("position", user.getPosition());
+            jObject.addProperty("email", user.getEmail());
+            jObject.addProperty("departmentId", user.getDepartmentId());
+            jObject.addProperty("isEnabled", user.isEnabled());
+            jObject.addProperty("isTemporary", user.isTemporary());
+            jObject.addProperty("role", user.getRole());
+            jObject.addProperty("branchId", user.getBranchId());
         }
-        jObject.addProperty("isEnabled", user.isEnabled());
-        jObject.addProperty("isTemporary", user.isTemporary());
-        jObject.addProperty("role", user.getRole());
         return jObject;
     }
 }

@@ -30,9 +30,9 @@ public class ChangeTemporaryPasswordAuthenticationHandler implements Authenticat
         }
         boolean hasTemporaryPassword = userService.findByUsername(username).isTemporary();
         if (hasTemporaryPassword) {
-            response.sendRedirect("/changePassword");
+            response.sendRedirect("change-password");
         } else {
-            response.sendRedirect("/work-starter");
+            response.sendRedirect("work-starter");
         }
     }
 }

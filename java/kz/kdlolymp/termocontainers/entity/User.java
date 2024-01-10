@@ -18,8 +18,8 @@ public class User implements UserDetails, Serializable {
     private static final String ROLE_PREFIX = "ROLE_";
 
     @Id
+    @Column(columnDefinition = "serial", name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
     private Long id;
     @Column(name = "login")
     private String username;
@@ -41,9 +41,6 @@ public class User implements UserDetails, Serializable {
     private String email;
     @Column(name = "department_id")
     private int departmentId;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name="curator_id")
-    private User curator;
     @Column(name = "is_temporary")
     private boolean isTemporary;
     @OneToMany(targetEntity = UserRights.class, cascade = CascadeType.ALL,
@@ -53,27 +50,28 @@ public class User implements UserDetails, Serializable {
     @ManyToMany(targetEntity = AlarmGroup.class, cascade = CascadeType.ALL,
             fetch = FetchType.LAZY, mappedBy = "users")
     private List <AlarmGroup> alarmGroups;
+    @Column(name = "branch_id")
+    private int branchId;
+    @Column(name = "memory")
+    private String memory;
 
     public User(){}
 
-    public User(Long id, String username, String role, String userSurname, String userFirstname, int departmentId, List<UserRights> userRightsList) {
-        this.id = id;
-        this.username = username;
-        this.role = role;
-        this.userSurname = userSurname;
-        this.userFirstname = userFirstname;
-        this.departmentId = departmentId;
-        this.userRightsList = userRightsList;
-    }
+//    public User(Long id, String username, String role, String userSurname, String userFirstname,
+//                int departmentId, List<UserRights> userRightsList, int branchId) {
+//        this.id = id;
+//        this.username = username;
+//        this.role = role;
+//        this.userSurname = userSurname;
+//        this.userFirstname = userFirstname;
+//        this.departmentId = departmentId;
+//        this.userRightsList = userRightsList;
+//        this.branchId = branchId;
+//    }
 
     public void addUserRights(UserRights userRights){
         this.userRightsList.add(userRights);
     }
-    public void removeUserRights(UserRights userRights){
-        this.userRightsList.remove(userRights);
-        userRights.setUser(null);
-    }
-
 
     public Long getId() {return id;}
 
@@ -110,11 +108,6 @@ public class User implements UserDetails, Serializable {
     public int getDepartmentId() {return departmentId;}
 
     public void setDepartmentId(int departmentId) {this.departmentId = departmentId;}
-
-    public User getCurator() {return curator;}
-
-    public void setCurator(User curator) {this.curator = curator;}
-
     public boolean isTemporary() {return isTemporary;}
 
     public void setTemporary(boolean temporary) {isTemporary = temporary;}
@@ -126,6 +119,14 @@ public class User implements UserDetails, Serializable {
     public List<AlarmGroup> getAlarmGroups() {return alarmGroups;}
 
     public void setAlarmGroups(List<AlarmGroup> alarmGroups) {this.alarmGroups = alarmGroups;}
+
+    public int getBranchId() {return branchId;}
+
+    public void setBranchId(int branchId) {this.branchId = branchId;}
+
+    public String getMemory() {return memory;}
+
+    public void setMemory(String memory) {this.memory = memory;}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface BetweenPointRepository extends JpaRepository<BetweenPoint, Long> {
 
-    List<BetweenPoint> findAllByContainerNoteId(Long containerNoteId);
 
     BetweenPoint findBetweenPointById(Long id);
 

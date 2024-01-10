@@ -14,8 +14,8 @@ import java.util.Date;
 public class Container implements Serializable {
 
     @Id
+    @Column(columnDefinition = "serial", name = "container_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "container_id")
     private Integer id;
     @Column(name = "container_number")
     private String containerNumber;
@@ -27,9 +27,12 @@ public class Container implements Serializable {
     private LocalDateTime registrationDate;
     @Column(name = "release_date")
     private LocalDateTime releaseDate;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @Column(name = "is_enable")
+    private boolean isEnable;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "department_id")
     private Department department;
+
     public Container() {
     }
 
@@ -52,6 +55,10 @@ public class Container implements Serializable {
     public LocalDateTime getReleaseDate() { return releaseDate; }
 
     public void setReleaseDate(LocalDateTime releaseDate) { this.releaseDate = releaseDate; }
+
+    public boolean isEnable() {return isEnable;}
+
+    public void setEnable(boolean enable) {isEnable = enable;}
 
     public Department getDepartment() {return department;}
 

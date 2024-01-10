@@ -1,37 +1,39 @@
 package kz.kdlolymp.termocontainers.entity;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name="container_notes")
 public class ContainerNote implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "note_id")
+//    @SequenceGenerator(name="note_seq", sequenceName = "note_sequence",
+//        initialValue = 1, allocationSize = 5) add to @GeneratedValue generator = "note_seq"
+    @Column(columnDefinition = "serial", name = "note_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name="container_id", nullable = false)
     private Container container;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name="department_out_id")
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name="department_out_id", nullable = false)
     private Department outDepartment;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name="department_to_id")
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name="department_to_id", nullable = true)
     private Department toDepartment;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "user_to_id")
     private User toUser;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
     @JoinColumn(name = "user_out_id")
     private User outUser;
     @Column(name = "send_time")
@@ -46,17 +48,29 @@ public class ContainerNote implements Serializable {
     private String sendNote;
     @Column(name = "send_pay")
     private Long sendPay;
+    @Column(name = "amount")
+    private int amount;
+    @Column(name = "thermometer")
+    private String thermometer;
     @Column(name = "arrive_note")
     private String arriveNote;
     @Column(name = "delay_note")
     private String delayNote;
     @Column(name = "is_send")
     private boolean isSend;
+    @Column(name = "paid_end")
+    @ColumnDefault("false")
+    private boolean paidEnd;
     @OneToMany(targetEntity = BetweenPoint.class, cascade = CascadeType.ALL,
-        fetch = FetchType.LAZY, mappedBy = "containerNoteId")
-    private List<BetweenPoint> betweenPoints;
+        fetch = FetchType.LAZY, mappedBy = "containerNote")
+    private List<BetweenPoint> betweenPoints = new ArrayList<>();
 
     public ContainerNote() { }
+
+    public ContainerNote(Container container, Department outDepartment) {
+        this.container = container;
+        this.outDepartment = outDepartment;
+    }
 
     public Long getId() { return id; }
 
@@ -98,7 +112,6 @@ public class ContainerNote implements Serializable {
 
     public void setDelayTime(Long delayTime) {this.delayTime = delayTime;}
 
-
     public String getSendNote() {return sendNote;}
 
     public void setSendNote(String sendNote) {this.sendNote = sendNote;}
@@ -107,9 +120,17 @@ public class ContainerNote implements Serializable {
 
     public void setSendPay(Long sendPay) {this.sendPay = sendPay;}
 
+    public int getAmount() {return amount;}
+
+    public void setAmount(int amount) {this.amount = amount;}
+
     public String getArriveNote() {return arriveNote;}
 
     public void setArriveNote(String arriveNote) {this.arriveNote = arriveNote;}
+
+    public String getThermometer() {return thermometer;}
+
+    public void setThermometer(String thermometer) {this.thermometer = thermometer;}
 
     public String getDelayNote() {return delayNote;}
 
@@ -119,7 +140,12 @@ public class ContainerNote implements Serializable {
 
     public void setSend(boolean send) {isSend = send;}
 
+    public boolean isPaidEnd() {return paidEnd;}
+
+    public void setPaidEnd(boolean paidEnd) {this.paidEnd = paidEnd;}
+
     public List<BetweenPoint> getBetweenPoints() {return betweenPoints;}
 
     public void setBetweenPoints(List<BetweenPoint> betweenPoints) {this.betweenPoints = betweenPoints;}
+
 }

@@ -1,19 +1,14 @@
 package kz.kdlolymp.termocontainers.service;
 
 import kz.kdlolymp.termocontainers.entity.Branch;
-import kz.kdlolymp.termocontainers.entity.Company;
 import kz.kdlolymp.termocontainers.entity.Department;
 import kz.kdlolymp.termocontainers.repositories.BranchRepository;
-import kz.kdlolymp.termocontainers.repositories.CompanyRepository;
-import kz.kdlolymp.termocontainers.repositories.DepartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -21,9 +16,9 @@ public class BranchService {
     @Autowired
     private BranchRepository branchRepository;
     @Autowired
-    private CompanyRepository companyRepository;
+    private  ContainerNoteService containerNoteService;
     @Autowired
-    private DepartmentRepository departmentRepository;
+    private  DepartmentService departmentService;
     @PersistenceContext
     private EntityManager manager;
 
@@ -43,39 +38,57 @@ public class BranchService {
             return true;
         }
     }
+    public boolean save(Branch branch){
+        branchRepository.save(branch);
+        return true;
+    }
     public List<Branch> findAllByCompanyId(int companyId){
         return branchRepository.findByCompanyId(companyId);
     }
-    public void deleteBranch(int id){
+    public boolean deleteBranch(int id){
         Branch branch = branchRepository.findBranchById(id);
-        List<Department> departments = departmentRepository.findAllByBranchId(branch.getId());
-        for(Department department: departments){
-            departmentRepository.delete(department);
+        List<Department> departments = departmentService.findAllByBranchId(branch.getId());
+        if(departments!=null && departments.size()>0) {
+            boolean isNoteExist = false;
+            for (Department department : departments) {
+                if (containerNoteService.checkNotesByDepartmentId(department.getId())) {
+                    isNoteExist = true;
+                }
+            }
+            if (isNoteExist) {
+                return false;
+            } else {
+                for (Department department : departments) {
+                    departmentService.deleteDepartment(department.getId());
+                }
+                branchRepository.delete(branch);
+                return true;
+            }
+        } else{
+            branchRepository.delete(branch);
+            return true;
         }
-        branchRepository.delete(branch);
     }
-    public List<Branch> findAllBySorted(){
-        List<Branch> dBbranches = manager.createQuery("SELECT b FROM Branch b", Branch.class)
+    public List<Branch> findAllSorted(){
+        List<Branch> branches = manager.createQuery("SELECT b FROM Branch b WHERE b.id>1 ORDER BY b.id ASC", Branch.class)
                 .setMaxResults(30).getResultList();
+        return branches;
+    }
+
+    public List<Branch> findAllLaborSorted(){
+        List<Branch> branchList = manager.createQuery("SELECT b FROM Branch b WHERE b.company.isLabor = true " +
+                        "ORDER BY b.branchName ASC", Branch.class).getResultList();
         List<Branch> branches = new ArrayList<>();
-        for(int i=0; i<dBbranches.size(); i++){
-            Branch branch = dBbranches.get(i);
-            if(branch.getId()==1){
-                dBbranches.remove(i);
-            }
-            if(branch.getBranchName().indexOf("филиал") < 2){
-                branches.add(branch);
-                dBbranches.remove(i);
+        for(int i=0; i<branchList.size(); i++){
+            String branchName = branchList.get(i).getBranchName();
+            if(branchName.indexOf("г.")==0){
+                branches.add(branchList.get(i));
+                branchList.remove(branchList.get(i));
+                i--;
             }
         }
-        Collections.sort(dBbranches, new Comparator<Branch>() {
-            @Override
-            public int compare(Branch o1, Branch o2) {
-                return o1.getBranchName().compareTo(o2.getBranchName());
-            }
-        });
-        for(int j=0; j<dBbranches.size(); j++){
-            branches.add(dBbranches.get(j));
+        for(Branch branch: branchList){
+            branches.add(branch);
         }
         return branches;
     }

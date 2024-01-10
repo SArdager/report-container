@@ -8,11 +8,12 @@ import java.time.LocalDateTime;
 @Table(name="between_points")
 public class BetweenPoint implements Serializable {
     @Id
+    @Column(columnDefinition = "serial", name = "point_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "point_id")
     private Long id;
-    @Column(name = "container_note_id")
-    private Long containerNoteId;
+    @ManyToOne
+    @JoinColumn(name = "container_note_id")
+    private ContainerNote containerNote;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
@@ -23,6 +24,7 @@ public class BetweenPoint implements Serializable {
     private LocalDateTime passTime;
     @Column(name="point_note")
     private String pointNote;
+
     public BetweenPoint() {
     }
 
@@ -30,9 +32,13 @@ public class BetweenPoint implements Serializable {
 
     public void setId(Long id) {this.id = id;}
 
-    public Long getContainerNoteId() {return containerNoteId;}
+//    public Long getContainerNoteId() {return containerNoteId;}
+//
+//    public void setContainerNoteId(Long containerNoteId) {this.containerNoteId = containerNoteId;}
 
-    public void setContainerNoteId(Long containerNoteId) {this.containerNoteId = containerNoteId;}
+    public ContainerNote getContainerNote() {return containerNote;}
+
+    public void setContainerNote(ContainerNote containerNote) {this.containerNote = containerNote;}
 
     public User getPassUser() {return passUser;}
 
