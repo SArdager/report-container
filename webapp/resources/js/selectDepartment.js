@@ -2,7 +2,7 @@ $(document).ready(function(){
 
     $('#select_company').on('change', function(){
         $.ajax({
-            url: '/user/change-department/select-company',
+            url: '../user/change-department/select-company',
             method: 'POST',
             dataType: 'json',
             data: {companyId: $('#select_company').val()},
@@ -15,14 +15,15 @@ $(document).ready(function(){
                 $('#select_branch').trigger("change");
             },
             error:  function(response) {
-               alert("Ошибка обращения в базу данных. Повторите.");
+               window.scrollTo({ top: 0, behavior: 'smooth' });
+               $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
             }
         });
     });
 
     $('#select_branch').on('change', function(){
         $.ajax({
-            url: '/user/change-department/select-branch',
+            url: '../user/change-department/select-branch',
             method: 'POST',
             dataType: 'json',
             data: {branchId: $('#select_branch').val()},
@@ -31,16 +32,19 @@ $(document).ready(function(){
                 $.each(departments, function(key, department){
                     $('#select_department').append('<option value="' + department.id + '">' + department.departmentName + '</option');
                 });
+                $('#select_department').trigger('change');
                 $('#clean_input').trigger('click');
             },
             error:  function(response) {
-                alert("Ошибка обращения в базу данных. Повторите.");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
             }
         });
     });
+
     $('#select_change_branch').on('change', function(){
         $.ajax({
-            url: '/user/change-department/select-branch',
+            url: '../user/change-department/select-branch',
             method: 'POST',
             dataType: 'json',
             data: {branchId: $('#select_change_branch').val()},
@@ -49,73 +53,64 @@ $(document).ready(function(){
                 $.each(departments, function(key, department){
                     $('#select_change_department').append('<option value="' + department.id + '">' + department.departmentName + '</option');
                 });
+                if(document.getElementById('toDepartmentId')!=null){
+                    $('#select_change_department').val($('#toDepartmentId').val());
+                }
             },
             error:  function(response) {
-                alert("Ошибка обращения в базу данных. Повторите.");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
             }
         });
     });
 
-    var checkbox_reader = document.getElementById("readerId");
-    var checkbox_editor = document.getElementById("editorId");
-    var checkbox_account = document.getElementById("accountId");
-    $('#readerId').change ( function(){
-        if($('#readerId').is(':checked')==true){
-            checkbox_editor.checked = false;
-            checkbox_account.checked = false;
-            $('#user_rights').val("reader");
-        } else {
-            $('#user_rights').val("");
+    $('#select_out_branch').on('change', function(){
+        let url = '../user/change-department/select-pref';
+        if(document.getElementById("all_company").style.display == 'table-row'){
+            url = '../user/change-department/select-branch';
         }
-    });
-    $('#editorId').change ( function(){
-        if($('#editorId').is(':checked')==true){
-            checkbox_reader.checked = false;
-            checkbox_account.checked = false;
-            $('#user_rights').val("editor");
-        } else {
-            $('#user_rights').val("");
-        }
-    });
-    $('#accountId').change ( function(){
-        if($('#accountId').is(':checked')==true){
-            checkbox_reader.checked = false;
-            checkbox_editor.checked = false;
-            $('#user_rights').val("account");
-        } else {
-            $('#user_rights').val("");
-        }
+        $.ajax({
+            url: url,
+            method: 'POST',
+            dataType: 'json',
+            data: {branchId: $('#select_out_branch').val()},
+            success: function(departments) {
+                $('#select_department').empty();
+                $.each(departments, function(key, department){
+                    $('#select_department').append('<option value="' + department.id + '">' + department.departmentName + '</option');
+                });
+            },
+            error:  function(response) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+            }
+        });
     });
 
+    $("#other_branches").on('click', function(){
+        $('#all_company').css("display", "table-row");
+        $('#select_all_company').trigger("change");
+        $("#other_branches").html("");
+    });
 
-//    var line_between = document.getElementById("line_between");
-//    var number_between = 1;
-//    line_between.onclick = function(){
-//        if(window.getComputedStyle(between_area).display === 'none' && number_between%2!=0){
-//            number_between++;
-//        }
-//        if(number_between%2==0){
-//
-//        } else {
-//        }
-//        number_between++;
-//    };
-//
-
-
-//    $('#btn_choose').on('click', function(){
-//        $.ajax({
-//            url: '/user/change-department/choose-department',
-//            method: 'POST',
-//            dataType: 'text',
-//            data: {departmentId: $('#select_department').val()},
-//            success: function(message) {
-//                $('#result_line').html(message);
-//            },
-//            error:  function(response) {
-//                alert("Ошибка обращения в базу данных. Повторите.");
-//            }
-//        });
-//    });
+    $('#select_all_company').on('change', function(){
+        $.ajax({
+            url: '../user/change-department/select-company',
+            method: 'POST',
+            dataType: 'json',
+            data: {companyId: $('#select_all_company').val()},
+            success: function(branches) {
+               $('#select_out_branch').empty();
+               $.each(branches, function(key, branch){
+                   $('#select_out_branch').append('<option value="' + branch.id + '">' + branch.branchName + '</option');
+               });
+                $('#select_out_branch').trigger("change");
+            },
+            error:  function(response) {
+               window.scrollTo({ top: 0, behavior: 'smooth' });
+               $('#result_line').html("Ошибка обращения в базу данных. Перегрузите страницу.");
+            }
+        });
+    });
 
 });

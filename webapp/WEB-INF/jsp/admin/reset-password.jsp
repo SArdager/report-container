@@ -6,9 +6,9 @@
 <head>
   <meta charset="utf-8">
   <title>User password reset page</title>
-  <link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/style.css">
-    <script type="text/javascript" src="${contextPath}/resources/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="${contextPath}/resources/js/userEditor.js"></script>
+  <link rel="stylesheet" type="text/css" href="../resources/css/style.css">
+    <script type="text/javascript" src="../resources/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../resources/js/userEditor.js"></script>
 
 </head>
 
@@ -16,20 +16,22 @@
   <section>
      <div class="container">
         <div class="user_title">
-            <a style="margin-top: 4px;" href="/logout">Выйти</a>
+            <a style="margin-top: 4px;" href="../logout">Выйти</a>
         </div>
         <hr>
         <h1>Сброс пароля пользователя</h1>
         <br>
-        <a href="/admin">Вернуться</a>
+        <a href="../admin">Вернуться</a>
         <br>
-        <h2><div id="result_line"></div></h2>
+        <h3><div id="result_line"></div></h3>
         <div class="main_block">
            <div class="field">
                <label>Пользователь</label>
                <input type="text" id="user_name" size="40" placeholder="Первые три буквы фамилии" required/>
            </div>
            <input type="hidden" id="user_id" name="userId" value="0"/>
+           <br>
+           <br>
            <div class="field" id="show_select" style="display: none; ">
                <label style="color: blue;" >Кликните пользователя</label>
                <select id="select_user">
@@ -38,11 +40,8 @@
            <br>
            <br>
            <div class="field">
-               <label>Временный пароль</label>
-               <input type="password" id="password" name="password" size="40" required/>
-               <br>
-               <br>
-               <button id="btn_reset" style="width: 200px;" >Сбросить пароль</button>
+               <label></label>
+               <button id="btn_reset" style="width: 200px; display: block" >Сбросить пароль</button>
            </div>
         </div>
      </div>
@@ -51,7 +50,6 @@
     <script>
         $(document).ready(function(){
             $("h1").css("color", "blue");
-            $("h2").css("color", "red");
             $('#select_company').trigger("change");
             var result_line = document.getElementById('result_line');
             var resultLineValue;

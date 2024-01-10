@@ -6,9 +6,18 @@
 <head>
   <meta charset="utf-8">
   <title>Termocontainer check-between page</title>
-  <link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/style.css">
-    <script type="text/javascript" src="${contextPath}/resources/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="${contextPath}/resources/js/worker.js"></script>
+  <script type="text/javascript" src="../resources/js/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../resources/js/worker.js"></script>
+  <script>
+      var w = Number(window.innerWidth);
+      var h = Number(window.innerHeight);
+      if (h>w) {
+        $('head').append('<link rel="stylesheet" type="text/css" href="../resources/css/mobileStyle.css">');
+        $('head').append('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+      } else {
+        $('head').append('<link rel="stylesheet" type="text/css" href="../resources/css/style.css">');
+      }
+  </script>
 
 </head>
 
@@ -16,18 +25,18 @@
   <section>
      <div class="container">
         <div class="user_title">
-            <strong style="margin-top: 4px; margin-right: 20px">Пользователь: ${user.userFirstname} ${user.userSurname}</strong>
-            <a style="margin-top: 4px;" href="/logout">Выйти</a>
+            <span id="user_name"></span>
+            <a href="../logout">Выйти</a>
         </div>
         <hr>
         <h1>Промежуточный объект регистрации</h1>
         <br>
-        <a href="/work-starter">Вернуться</a>
-        <a style="margin-left: 20px;" href="/user/check-in">Приемка термоконтейнера</a>
-        <a style="margin-left: 20px;" href="/user/check-out">Отгрузка термоконтейнера</a>
-        <a style="margin-left: 20px;" href="/user/check-journal">Журнал движения термоконтейнеров</a>
+        <a class="link_line" href="../work-starter">Вернуться</a>
+        <a class="link_line" href="check-in">Приемка термоконтейнера</a>
+        <a class="link_line" href="check-out">Отгрузка термоконтейнера</a>
+        <a class="link_line" href="check-journal">Журнал движения термоконтейнеров</a>
         <br>
-        <h2><div id="result_line"></div></h2>
+        <h3><div id="result_line"></div></h3>
         <p>
             <div class="title_row">
                 <div class="title_name">Наименование объекта:</div>
@@ -38,50 +47,58 @@
                 <div id="userRights" class="color_text">${userRights.rights}</div>
             </div>
         </p>
-        <br>
-        <h2><div id="check_line"></div></h2>
-        <div class="main_block" id="checking_view" style="display: none">
-            <div class="field">
-                <label>Сканирование номера</label>
-                <input type="text" id="number_check" />
-                <div id="clean_input" style ="font-size: 0.9em; text-decoration: underline;">Очистить поле ввода</div>
-            </div>
-            <div class="field">
-                <label>Запись о регистрации</label>
-                <textarea id="textarea_between"></textarea><br>
-                <button id="btn_check" >Зарегистрировать</button>
-            </div>
-            <div class="field">
-                <label>Время регистрации</label>
-                <div id="time_check">Прибытие не зарегистрировано</div>
-            </div>
-            <div class="field">
-                <label>Статус регистрации</label>
-                <div id="status_check"></div>
-            </div>
-        </div>
-
+        <h3><div id="check_line"></div></h3>
+        <table id="checking_view" style="display: none">
+            <tr>
+                <td class="table_title">Сканирование номера</td>
+                <td><input type="text" id="number_check" maxlength="8"/></td>
+            </tr>
+            <tr>
+                <td class="table_title"></td>
+                <td id="clean_input" class="cut_line">Очистить поле ввода<br></td>
+            </tr>
+            <tr>
+                <td class="table_title">Запись о регистрации</td>
+                <td><br><textarea id="textarea_between"></textarea></td>
+            </tr>
+            <tr>
+                <td class="table_title"></td>
+                <td><button id="btn_check">Зарегистрировать</button></td>
+            </tr>
+            <tr>
+                <td class="table_title">Время регистрации</td>
+                <td id="time_check">Прибытие не зарегистрировано</td>
+            </tr>
+            <tr>
+                <td class="table_title">Статус регистрации</td>
+                <td id="status_check"></td>
+            </tr>
+        </table>
      </div>
   </section>
 
     <script>
         $(document).ready(function(){
             $("h1").css("color", "blue");
-            $("h2").css("color", "red");
+            let name = "${user.userFirstname}";
+            document.getElementById("user_name").textContent = name.substring(0, 1) + ". ${user.userSurname}";
             var rights = $('#userRights').html();
-            var checking_view = document.getElementById("checking_view");
-
-            if(rights.indexOf("ВНЕСЕНИЕ")>-1){
-                checking_view.style.display = "block";
+            if(rights.indexOf("ВНЕСЕНИЕ")>-1 || rights.indexOf("ЛАБОРАТОРИИ")>0){
+                $('#checking_view').css("display", "block");
             } else {
-                $('#check_line').html("Права на регистрацию термоконтейнеров отсутствуют");
+                $('#check_line').html("Права на регистрацию термоконтейнеров в промежуточном объекте отсутствуют");
             }
             document.getElementById("number_check").focus();
             var resultLineValue;
+            var clickNumber = 0;
             window.addEventListener("click", function(){
+                clickNumber++;
                 resultLineValue = $('#result_line').text();
-                if(resultLineValue.length>0){
+                if(clickNumber==0){
                     $('#result_line').text("");
+                }
+                if(resultLineValue.length>0){
+                    clickNumber = -1;
                 }
             });
             $('#clean_input').click(function(){

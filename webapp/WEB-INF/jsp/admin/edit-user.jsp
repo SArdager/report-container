@@ -6,10 +6,10 @@
 <head>
   <meta charset="utf-8">
   <title>User editor page</title>
-  <link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/style.css">
-    <script type="text/javascript" src="${contextPath}/resources/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="${contextPath}/resources/js/userEditor.js"></script>
-    <script type="text/javascript" src="${contextPath}/resources/js/showUserRights.js"></script>
+  <link rel="stylesheet" type="text/css" href="../resources/css/style.css">
+    <script type="text/javascript" src="../resources/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="../resources/js/userEditor.js"></script>
+    <script type="text/javascript" src="../resources/js/showUserRights.js"></script>
 
 </head>
 
@@ -17,14 +17,14 @@
   <section>
      <div class="container">
         <div class="user_title">
-            <a style="margin-top: 4px;" href="/logout">Выйти</a>
+            <a style="margin-top: 4px;" href="../logout">Выйти</a>
         </div>
         <hr>
-        <h1>Редактирование пользователя</h1>
+        <h1>Редактирование (в т.ч. удаление или восстановление) пользователя</h1>
         <br>
-        <a href="/admin">Вернуться</a>
+        <a href="../admin">Вернуться</a>
         <br>
-        <h2><div id="result_line"></div></h2>
+        <h3><div id="result_line"></div></h3>
         <div class="main_block">
            <div class="field">
                <label>Пользователь</label>
@@ -32,7 +32,7 @@
            </div>
            <input type="hidden" id="user_id" value="0"/>
            <div class="field" id="show_select" style="display: none; ">
-               <label style="color: blue;" >Кликните пользователя</label>
+               <label></label>
                <select id="select_user">
                </select>
            </div>
@@ -57,16 +57,6 @@
                <label>Логин</label>
                <input type="text" id="username" size="40" required/>
            </div>
-           <div class="field">
-               <label>Куратор</label>
-               <input type="text" id="curator_name" size="40" placeholder="Первые три буквы фамилии"/>
-           </div>
-           <input type="hidden" id="curator_id" value="0"/>
-           <div class="field" id="show_curator_select" style="display: none; ">
-               <label style="color: blue;" >Кликните пользователя</label>
-               <select id="select_curator">
-               </select>
-           </div>
             <br>
             <div class="field">
                 <label>Заблокировать пользователя</label>
@@ -74,22 +64,25 @@
             </div>
             <div class="field">
                 <label>Разблокировать пользователя</label>
-                <input type="checkbox" id="isEnabled" checked/>
+                <input type="checkbox" id="isEnabled" checked ="checked" />
             </div>
             <input type="hidden" id="is_enabled" value="true" />
+            <div class="field">
+                <label>Послать адрес сервера с новым паролем</label>
+                <input type="checkbox" id="is_link_send" />
+            </div>
         </div>
         <p>
         <br>
         <button id="btn_edit_user" style="margin-left: 130px" >Внести изменения</button>
         </p>
-
      </div>
+     <div class="buffer" style = "height: 5em;"></div>
   </section>
 
     <script>
         $(document).ready(function(){
             $("h1").css("color", "blue");
-            $("h2").css("color", "red");
             $('#select_company').trigger("change");
             var resultLineValue;
             var clickNumber = 0;

@@ -7,9 +7,18 @@
 <head>
   <meta charset="utf-8">
   <title>Change Department page</title>
-    <link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/style.css">
-    <script type="text/javascript" src="${contextPath}/resources/js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="${contextPath}/resources/js/selectDepartment.js"></script>
+  <script type="text/javascript" src="../resources/js/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../resources/js/selectDepartment.js"></script>
+  <script>
+      var w = Number(window.innerWidth);
+      var h = Number(window.innerHeight);
+      if (h>w) {
+        $('head').append('<link rel="stylesheet" type="text/css" href="../resources/css/mobileStyle.css">');
+        $('head').append('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+      } else {
+        $('head').append('<link rel="stylesheet" type="text/css" href="../resources/css/style.css">');
+      }
+  </script>
 
 </head>
 
@@ -17,65 +26,74 @@
   <section>
      <div class="container">
         <div class="user_title">
-            <strong style="margin-top: 4px; margin-right: 20px">Пользователь: ${user.userFirstname} ${user.userSurname}</strong>
-            <a style="margin-top: 4px;" href="/logout">Выйти</a>
+            <span id="user_name"></span>
+            <a href="../logout">Выйти</a>
         </div>
         <hr>
         <h1>ВЫБОР НОВОГО ОБЪЕКТА</h1>
         <br>
-        <a href="/work-starter">Вернуться</a>
+        <a class="link_line" href="../work-starter">Вернуться</a>
         <br>
-        <h2 id="error-attention">${errorMessage}</h2>
+        <h3 id="error-attention">${errorMessage}</h3>
         <div class="title_row">
-            <strong>Текущий объект:</strong>
-            <div id="department_name" style="margin-left: 10px; color: DarkBlue"><b> ${department.departmentName},  ${department.branch.branchName}</b></div>
+            <div class="title_name"><b>Текущий объект:</b></div>
+            <div id="department_name" class="color_text"> ${department.departmentName},  ${department.branch.branchName}</div>
         </div>
         <br>
-        <div class="main_block">
-            <div class="field>
-                <span class = "title">Предприятие</span>
-                <select id="select_company" >
-                    <c:forEach var="company" items="${companies}">
-                        <option value=${company.id}>${company.companyName}</option>
-                    </c:forEach>
-                </select>
-            </div>
-            <div class="field">
-                <span class = "title">Филиал</span>
-                <select id="select_branch" >
-                    <c:forEach var="branch" items="${branches}">
-                        <option value=${branch.id}>${branch.branchName}</option>
-                    </c:forEach>
-                </select>
-            </div>
-            <form method="post" action="/user/change-department/choose-department">
-            <div class="field">
-                <span class = "title">Объект</span>
-                <select id="select_department" name="departmentId" >
-                    <c:forEach var="department" items="${departments}">
-                        <option value=${department.id}>${department.departmentName}</option>
-                    </c:forEach>
-                </select>
-            </div>
-            <br>
-            <p>
-                <button type="submit" style="margin-left: 104px" >Выбрать</button>
-            </p>
-            </form>
-        </div>
+        <form method="post" action="../user/change-department/choose-department">
+        <table>
+            <tr>
+                <td class="table_title">Предприятие</td>
+                <td><select id="select_company" >
+                       <c:forEach var="company" items="${companies}">
+                           <option value=${company.id}>${company.companyName}</option>
+                       </c:forEach>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="table_title">Филиал</td>
+                <td><select id="select_branch" >
+                       <c:forEach var="branch" items="${branches}">
+                           <option value=${branch.id}>${branch.branchName}</option>
+                       </c:forEach>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="table_title">Объект</td>
+                <td><select id="select_department" name="departmentId" >
+                       <c:forEach var="department" items="${departments}">
+                           <option value=${department.id}>${department.departmentName}</option>
+                       </c:forEach>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="table_title"></td>
+                <td><br><button type="submit">Выбрать</button></td>
+            </tr>
+        </table>
+        </form>
      </div>
   </section>
 
     <script>
         $(document).ready(function(){
             $("h1").css("color", "blue");
-            $("h2").css("color", "red");
+            let name = "${user.userFirstname}";
+            document.getElementById("user_name").textContent = name.substring(0, 1) + ". ${user.userSurname}";
             $('#select_company').trigger("change");
             var resultLineValue;
+            var clickNumber = 0;
             window.addEventListener("click", function(){
+                clickNumber++;
                 resultLineValue = $('#error-attention').text();
-                if(resultLineValue.length>0){
+                if(clickNumber==0){
                     $('#error-attention').text("");
+                }
+                if(resultLineValue.length>0){
+                    clickNumber = -1;
                 }
             });
        });

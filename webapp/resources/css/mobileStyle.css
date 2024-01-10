@@ -1,107 +1,108 @@
 body {
 	font-family: Arial, sans-serif;
+	font-size: calc(18px + 1vw);
 	color: black;
 	padding: 0;
 	margin: 0;
-}
+ }
 .container {
 	padding: 0px 10px;
 	margin: 0 auto;
 }
 h1 {
-	font-size: 1.5em;
+	font-size: 1.2em;
 	padding: 0;
 	margin: 0;
-}
+	}
 h2 {
-	font-size: 1.2em;
+	font-size: 1.1em;
     line-height: 1.0;
-}
+	}
 h3 {
 	font-size: 1.1em;
-    line-height: 0.9;
+    line-height: 1.0;
 	color: red;
-}
+	}
 h4 {
 	font-size: 1.0em;
     line-height: 0.8;
     text-decoration: underline;
-}
+	}
 h5 {
 	font-size: 0.9em;
     line-height: 1.0;
-}
+	}
 button {
-	height: 25px;
-	padding: 0px 10px;
-    margin: 10px 0px ;
+	height: 2em;
+	padding: 0 0.5em;
+    margin: 1em 0 ;
 	color: black;
 	font-size: 0.8em;
     font-weight: bold;
-	width: 160px;
+	width: 12em;
 	background-color: cornsilk;
 }
 .two_in_line {
-    width: 110px;
-    margin-left: 40px;
+    width: 30%;
+    margin-left: 5%;
 }
 input{
-	height: 25px;
-	width: 240px;
-	padding: 0px 8px;
+	height: 1.6em;
+	width: 90%;
+	padding: 0 0.5em;
 	color: black;
-	font-size: 0.85em;
-	margin: 2px 0px;
+	font-size: 0.8em;
+	margin: 0.5em 0.5em 0.5em 0;
 	background-color: cornsilk;
 }
 input[type=button] {
-	height: 25px;
-	padding: 0px 10px;
-    margin: 10px 0px ;
+	height: 2em;
+	padding: 0 0.5em;
+    margin: 1em 0 ;
 	color: black;
 	font-size: 0.8em;
     font-weight: bold;
-	width: 160px;
+	width: 12em;
 	background-color: cornsilk;
 }
 input[type=date] {
-    width: 120px;
-	height: 25px;
-    margin-left: 20px;
-	font-size: 0.85em;
+    width: 30%;
+	height: 1.5em;
+    margin-left: 1em;
+	font-size: 0.75em;
 	background-color: cornsilk;
 }
 input[type=number] {
-    width: 3em;
-	height: 25px;
+    width: 2em;
+	height: 1.5em;
     margin: 0;
-	font-size: 0.85em;
+	font-size: 0.75em;
 	background-color: cornsilk;
 }
 input[type=radio] {
-    width: 12px;
-    height: 12px;
-    margin-left: 20px;
-    margin-top: 8px;
+    width: 0.8em;
+    height: 0.8em;
+    margin-left: 2em;
+    margin-top: 0.5em;
 }
 input[type=checkbox] {
-    width: 12px;
-    height: 12px;
+    width: 0.8em;
+    height: 0.8em;
 }
 .checkbox_margin {
-    margin: 0 0 0 14px;
-    padding-top: 6px;
+    margin: 0 0 0 3em;
+    padding-top: 0.5em;
 }
 select{
-    width: 260px;
-	height: 25px;
-	font-size: 0.85em;
-	padding: 0px 4px;
-	margin: 4px 0px;
+    width: 95%;
+	height: 1.5em;
+	font-size: 0.75em;
+	padding: 0 0.5em;
+	margin: 0.5em 0;
 	background-color: cornsilk;
 }
 textarea{
-    width: 300px;
+    width: 95%;
 	rows: 4;
 	font-size: 0.9em;
 	padding: 0px 8px;
@@ -110,37 +111,38 @@ textarea{
 	background-color: cornsilk;
 }
 img {
-    margin-left: 30px;
-    width: 24px;
-    height: 24px;
+    margin-left: 2em;
+    width: 1.2em;
+    height: 1.2em;
     object-fit: contain;
 }
 #setup {
-    margin-left: 10px;
-    width: 24px;
-    height: 24px;
+    margin-left: 1em;
+    width: 1.2em;
+    height: 1.2em;
     object-fit: contain;
 }
 .main_block {
     float: left;
+    width: 100%;
 }
 .field {
 	clear: both;
 	text-align: right;
-	line-height: 25px;
+	line-height: 2em;
 }
 label {
 	float: left;
-	padding-right: 10px;
+	font-size: 1em;
+	width: 40%;
+	padding-right: 1%;
+	padding-top: 0.5em;
+	margin-right: 2%;
 }
 .content {
-    width: 400 px;
+    width: 40%;
 	text-align: left;
 	padding: 0px 4px;
-}
-.title{
-	float: left;
-	padding-right: 10px;
 }
 p {clear: both;}
 .user_title {
@@ -148,6 +150,7 @@ p {clear: both;}
 	display: flex;
 	flex-direction: row;
     justify-content: flex-end;
+    font-size: 0.7em;
     margin-top: 4px;
 }
 .user_title span{
@@ -158,8 +161,8 @@ p {clear: both;}
 	display: flex;
   	flex-direction: row;
   	justify-content: left;
-    width: 100%;
     vertical-align: bottom;
+    width: 100%;
 }
 .title_left{
 	display: flex;
@@ -167,56 +170,56 @@ p {clear: both;}
   	justify-content: left;
     width: 40%;
     vertical-align: bottom;
-    margin-left: 6px;
+    margin-right: 0.5em;
 }
 .title_name{
-    width: 200px;
-    font-size: 0.9em;
-    margin-left: 10px;
+    width: 50%;
+    font-size: 0.7em;
+    margin-left: 1%;
 }
 .reload_line {
-    font-size: 0.9em;
+    font-size: 0.8em;
     color: blue;
     font-weight: bold;
     text-decoration: underline;
-    padding-top: 6px;
-    margin-left: 20px;
-    margin-right: 6px;
-    margin-bottom: 10px;
-}
+    padding-top: 0.2em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    margin-bottom: 0.6em;
+    }
 .cut_line {
-    font-size: 0.85em;
+    font-size: 0.8em;
     color: red;
     text-decoration: underline;
-    margin: 8px 20px 6px 20px;
-}
+    margin: 0.5em 1em;
+    text-align: center;
+    }
 .float_line {
-    font-size: 0.85em;
+    font-size: 0.8em;
     color: red;
     text-decoration: underline;
-}
+    }
+#clean_courier {
+    font-size: 0.8em;
+    text-decoration: underline;
+    margin: 0.5em 1em;
+    text-align: center;
+    }
 .table_body td{
     text-align: left;
-    font-size: 0.9em;
+    font-size: 0.8em;
     padding: 0 4px;
     vertical-align: top;
 }
 .color_text{
+    width: 50%;
+    font-size: 0.75em;
     color: blue;
-    margin-left: 8px;
+    margin-left: 1%;
     font-weight: bold;
 }
-table {
-    border: none;
-    width: 100%;
-}
-table th{
-    text-align: center;
-    font-weight: normal;
-    border: 1px solid black;
-}
 .scroll_table {
-    height: 400px;
+    height: 50%;
     overflow-y: auto;
 }
 .scroll_table table{
@@ -227,7 +230,6 @@ table th{
 .scroll_table thead th{
     text-align: center;
     font-size: 0.85em;
-    font-weight: bold;
     padding: 3px;
     border: 1px solid black;
     position: sticky;
@@ -248,7 +250,7 @@ table th{
     width: 100%;
 }
 .table_shot thead th{
-    font-size: 0.85em;
+    font-size: 0.8em;
     font-weight: bold;
     top: 0;
     border: 1px solid black;
@@ -263,43 +265,56 @@ table th{
     border-right: 1px solid white;
     border-bottom: 1px solid black;
 }
-.table_title{
-    width: 180px;
+table {
+    border: none;
+    width: 100%;
+    font-size: 0.8em;
+}
+table th{
+    font-size: 0.8em;
     text-align: left;
+}
+.table_title{
+    width: 35%;
+    font-size: 0.8em;
     font-weight: normal;
 }
 .table_title .float_line{
     float: right;
-    margin-right: 10px;
-    margin-top: 6px;
-}
-#parcels_table td:nth-child(8) {
-    text-align: right;
-    padding-right: 10px;
+    margin-right: 1em;
+    margin-top: 0.2em;
 }
 #parcels_payment_table td:nth-child(7) {
     text-align: right;
-    padding-right: 10px;
+    padding-right: 4px;
+}
+#points_payment_table td:nth-child(7) {
+    text-align: right;
+    padding-right: 4px;
+}
+#parcels_table td:nth-child(8) {
+    text-align: right;
+    padding-right: 4px;
 }
 #points_table td:nth-child(7) {
     text-align: right;
-    padding-right: 10px;
+    padding-right: 4px;
 }
 #payment_table td:nth-child(5) {
     text-align: right;
-    padding-right: 10px;
+    padding-right: 4px;
 }
 #payment_table td:nth-child(6) {
     text-align: right;
-    padding-right: 10px;
+    padding-right: 4px;
 }
 .pages{
-    font-size: 0.75em;
+    font-size: 0.65em;
     text-decoration: underline;
-    padding-top: 6px;
+    padding-top: 0.5em;
 }
 .table_change_title{
-    width: 180px;
+    width: 20%;
     font-weight: normal;
     color: blue;
     text-align: end;
@@ -307,26 +322,29 @@ table th{
     padding-right: 6px;
 }
 .link_line {
-    font-size: 0.9em;
+    font-size: 0.6em;
     margin-right: 20px;
 }
 .date_line {
-    margin-left: 10px;
-    margin-right: 6px;
-    padding-top: 6px;
-    font-size: 0.95em;
+    font-size: 0.7em;
+    padding-top: 0.5em;
+    margin-right: 0.5em;
+    margin-left: 0.5em;
 }
 .text_line {
-    font-size: 0.8em;
-    padding-top: 6px;
-    margin-right: 6px;
-    margin-left: 6px;
+    font-size: 0.6em;
+    padding-top: 0.3em;
+    margin-right: 0.4em;
+    margin-left: 0.4em;
 }
+
 .select_in_line {
-    width: 160px;
-    margin-left: 10px;
+    width: 25%;
+	height: 1.5em;
+	font-size: 0.7em;
+    margin-left: 0.8em;
 }
-.btn_margin { margin-left: 190px;}
+.btn_margin { margin-left: 35%;}
 .wrapper{
     margin: 0 auto;
     width: 100%;
@@ -358,17 +376,6 @@ table th{
     width: 10%;
     text-align: center;
 }
-.group_name_cell {
-    width: 300dp;
-}
-.group_parameter {
-    width: 300dp;
-    text-align: left;
-}
-.group_box_cell {
-    width: 20dp;
-    text-align: center;
-}
 .choice_table td{
     font-size: 0.8em;
     padding: 3px;
@@ -376,4 +383,9 @@ table th{
     border-left: 1px solid white;
     border-right: 1px solid white;
     border-bottom: 1px solid black;
+}
+#other_branches {
+    font-size: 0.6em;
+    color: blue;
+    text-decoration: underline;
 }

@@ -5,33 +5,41 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administration page</title>
-  <link rel="stylesheet" type="text/css" href="${contextPath}/resources/css/style.css">
-    <script type="text/javascript" src="${contextPath}/resources/js/jquery-3.6.0.min.js"></script>
-
+  <script type="text/javascript" src="resources/js/jquery-3.6.0.min.js"></script>
+  <script>
+      var w = Number(window.innerWidth);
+      var h = Number(window.innerHeight);
+      if (h>w) {
+        $('head').append('<link rel="stylesheet" type="text/css" href="resources/css/mobileStyle.css">');
+      } else {
+        $('head').append('<link rel="stylesheet" type="text/css" href="resources/css/style.css">');
+      }
+  </script>
 </head>
 
 <body>
   <section>
      <div class="container">
         <div class="user_title">
-            <a style="margin-top: 4px;" href="/logout">Выйти</a>
+            <a style="margin-top: 4px;" href="logout">Выйти</a>
         </div>
         <hr>
         <h1>АДМИНИСТРИРОВАНИЕ СИСТЕМЫ</h1>
         <br>
         <h2>Выбор операции</h2>
-        <h4><a href="/admin/change-company">Редактировать структуру предприятия</a></h4>
-        <h4><a href="/admin/edit-values">Редактирование видов проб и термоконтейнеров</a></h4>
-        <h4><a href="/admin/edit-time-standards">Редактирование норматива доставки</a></h4>
-        <h4><a href="/admin/alarm-groups">Редактирование групп оповещения</a></h4>
-        <h4><a href="/admin/add-user">Добавить пользователя</a></h4>
-        <h4><a href="/admin/edit-rights">Изменение прав пользователя</a></h4>
-        <h4><a href="/admin/reset-password">Сброс пароля пользователя</a></h4>
-        <h4><a href="/admin/edit-user">Редактирование пользователя</a></h4>
-        <h4><a href="/admin/info-users">Информация о пользователях</a></h4>
+        <h5><a href="admin/edit-company">Редактировать структуру предприятия</a></h5>
+        <h5><a href="control/edit-time-standard">Редактирование сроков доставки</a></h5>
+        <h5><a href="admin/event-log">Просмотр сохраненных событий</a></h5>
+        <h5><a href="admin/alarm-groups">Редактирование групп оповещения</a></h5>
+        <h5><a href="admin/add-user">Добавить пользователя</a></h5>
+        <h5><a href="admin/edit-rights">Изменение прав пользователя</a></h5>
+        <h5><a href="admin/reset-password">Сброс пароля пользователя</a></h5>
+        <h5><a href="admin/edit-user">Редактирование (+ удаление или восстановление) пользователя</a></h5>
+        <h5><a href="admin/info-users">Информация о пользователях</a></h5>
         <br>
-        <a href="/work-starter">Главная</a>
+        <a href="work-starter">Главная</a>
 
 
      </div>

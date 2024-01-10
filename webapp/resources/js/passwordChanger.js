@@ -7,36 +7,38 @@ $(document).ready(function(){
         var m_strLowerCase = "abcdefghijklmnopqrstuvwxyz";
         var m_strNumber = "0123456789";
 
-        if(checkPassword(strPassword) && checkConfirmPassword()){
+        if(checkPassword() && checkConfirmPassword()) {
+            $('#result_line').html("Отправлен запрос на смену пароля. Ожидайте.");
             $('#change_password').submit();
         }
 
         function checkConfirmPassword(){
-           if(strPassword === strConfirmPassword){
+            if(strPassword === strConfirmPassword){
                 return true;
             } else {
-                $('#result_line').html("Значения пароля НЕ СОВПАДАЮТ !!! Повторите ввод!!!");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                $('#result_line').html("Введенные пароли НЕ СОВПАДАЮТ !!!");
                 return false;
             }
         }
 
-        function checkPassword(strPassword){
-           if(strPassword.length > 5){
+        function checkPassword(){
+            if(strPassword.length > 5){
                if(checkContain(strPassword, m_strLowerCase)>0){
-                   if(checkContain(strPassword, m_strUpperCase)>0){
+                 if(checkContain(strPassword, m_strUpperCase)>0){
                        if(checkContain(strPassword, m_strNumber)>0){
                            return true;
                        } else {
-                       $('#result_line').html("Пароль должен содержать цифру.");
-                       return false;
+                            $('#result_line').html("Пароль должен содержать цифру.");
+                            return false;
                        }
                    } else {
                        $('#result_line').html("Пароль должен содержать латинскую букву в верхнем регистре.");
                        return false;
                    }
                } else {
-               $('#result_line').html("Пароль должен содержать латинскую букву в нижнем регистре.");
-               return false;
+                    $('#result_line').html("Пароль должен содержать латинскую букву в нижнем регистре.");
+                    return false;
                }
             } else {
                $('#result_line').html("Пароль должен содержать от 6 символов и более.");
@@ -56,20 +58,25 @@ $(document).ready(function(){
            return nCount;
        }
     });
+
     $('#btn_forget_password').on('click', function(){
         var login = $('#login').val();
         if(login.length>0){
+            $('#result_line').html("Направлен запрос на сброс пароля. Ожидайте ответа.");
+            $('#btn_forget_password').css("display", "none");
             $.ajax({
-                url: '/forget-password',
+                url: 'forget-password',
                 method: 'POST',
                 dataType: 'text',
                 data: {username: login},
                 success: function(message) {
+                    $('#btn_forget_password').css("display", "block");
                     if(message.length>0){
                         $('#result_line').html(message);
                     }
                 },
                 error:  function(response) {
+                    $('#btn_forget_password').css("display", "block");
                 }
             });
         } else {
